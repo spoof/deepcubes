@@ -11,7 +11,6 @@ with open("data/dialog.ru.32.json", "r") as handle:
 
 classifier.train(data)
 
-
 questions = [
     "какая у вас зарплата?",
     "можно ли обучаться в компании?",
