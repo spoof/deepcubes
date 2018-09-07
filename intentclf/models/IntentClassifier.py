@@ -9,21 +9,25 @@ class IntentClassifier(object):
     def __init__(self, embedder):
         self.embedder = embedder
         self.clf = LogisticRegression()
-        self.label_to_answer = []
 
-    def train(self, intents):
-        """Train classifier from intents json-dict data"""
+        self.label_to_answer = dict()
+        self.answer_to_label = dict()
+
+    def train(self, questions, answers):
+        """Train classifier at question-answer pairs"""
 
         X, Y = [], []
+        self.label_to_answer = dict()
+        self.answer_to_label = dict()
 
-        for label, category in enumerate(intents):
-            self.label_to_answer.append(
-                category["answers"][0]
-            )
+        for question, answer in zip(questions, answers):
+            if answer not in self.answer_to_label:
+                new_label = len(self.label_to_answer)
+                self.answer_to_label[answer] = new_label
+                self.label_to_answer[new_label] = answer
 
-            for question in category["questions"]:
-                X.append(self.embedder.get_vector(question))
-                Y.append(label)
+            X.append(self.embedder.get_vector(question))
+            Y.append(self.answer_to_label[answer])
 
         self.clf.fit(X, Y)
 
