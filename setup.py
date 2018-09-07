@@ -23,7 +23,7 @@ setup(
         'Programming Language :: Python :: 3',
     ],
 
-    packages=['intentclf'],
+    packages=['intentclf', 'intentclf.models'],
 
     keywords='nlp',
     install_requires=[],
