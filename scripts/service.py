@@ -1,22 +1,35 @@
+from flask import Flask, request, jsonify
+
 from intentclf.models import Embedder
 from intentclf.models import IntentClassifier
 
-import json
 
+print("Load embedder...")
 embedder = Embedder("/mnt/disk/models/glove-hh-embeds.kv")
-classifier = IntentClassifier(embedder)
 
-with open("data/dialog.ru.32.json", "r") as handle:
-    data = json.load(handle)
 
-classifier.train(data)
+print("Prepare app...")
+app = Flask(__name__)
 
-questions = [
-    "какая у вас зарплата?",
-    "можно ли обучаться в компании?",
-    "работать по выходным можно?"
-]
 
-for question in questions:
-    answer = classifier.predict(question)
-    print("{} : {}".format(question, answer))
+@app.route("/answer", methods=["GET"])
+def answer():
+    if (request.method != "GET" or
+            "id" not in request.args or
+            "question" not in request.args):
+        return jsonify({
+            "message": "Please sent GET query with `id` and `question` keys"
+        })
+
+    classifier = IntentClassifier(embedder)
+    classifier.load(
+        "scripts/models/model-{}.pickle".format(request.args.get("id"))
+    )
+
+    return jsonify({
+        "answer": classifier.predict(request.args.get("question"))
+    })
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=3334, debug=False)
