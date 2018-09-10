@@ -2,10 +2,11 @@ from intentclf.models import Embedder
 from intentclf.models import IntentClassifier
 
 import json
+import os
 
 import pandas as pd
 
-embedder = Embedder("/mnt/disk/models/glove-hh-embeds.kv")
+embedder = Embedder(os.environ['INTENT_CLASSIFIER_MODEL'])
 classifier = IntentClassifier(embedder)
 
 

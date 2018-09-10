@@ -1,12 +1,11 @@
 from flask import Flask, request, jsonify
+import os
 
 from intentclf.models import Embedder
 from intentclf.models import IntentClassifier
 
-
 print("Load embedder...")
-embedder = Embedder("/mnt/disk/models/glove-hh-embeds.kv")
-
+embedder = Embedder(os.environ['INTENT_CLASSIFIER_MODEL'])
 
 print("Prepare app...")
 app = Flask(__name__)

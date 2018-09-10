@@ -8,7 +8,10 @@ class IntentClassifier(object):
 
     def __init__(self, embedder):
         self.embedder = embedder
-        self.clf = LogisticRegression()
+        self.clf = LogisticRegression(
+            solver="liblinear",
+            multi_class="ovr",
+        )
 
         self.label_to_answer = dict()
         self.answer_to_label = dict()
@@ -47,7 +50,8 @@ class IntentClassifier(object):
             pickle.dump(
                 {
                     "model": self.clf,
-                    "label_to_answer": self.label_to_answer
+                    "label_to_answer": self.label_to_answer,
+                    "answer_to_label": self.answer_to_label,
                 },
                 protocol=pickle.HIGHEST_PROTOCOL,
                 file=handle
@@ -59,3 +63,4 @@ class IntentClassifier(object):
 
         self.clf = data["model"]
         self.label_to_answer = data["label_to_answer"]
+        self.answer_to_label = data["answer_to_label"]
