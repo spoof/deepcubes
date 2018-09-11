@@ -30,19 +30,22 @@ class TestIntentClassifier(unittest.TestCase):
     def test_environment_variable(self):
         self.assertIn('INTENT_CLASSIFIER_MODEL', os.environ)
 
-    def test_class_methods(self):
+    def test_train_method(self):
         self.classifier.train(self.questions, self.answers)
-        self.assertEqual(set(self.classifier.answer_to_label.keys()),
-                         set(self.classifier.label_to_answer.values()))
-        self.assertEqual(set(self.classifier.answer_to_label.values()),
-                         set(self.classifier.label_to_answer.keys()))
+
+        answer_to_label = tuple(self.classifier.answer_to_label.items())
+        label_to_answer = tuple(self.classifier.label_to_answer.items())
+        reversed_label_to_answer = tuple(map(lambda x: (x[1], x[0]),
+                                             label_to_answer))
+
+        self.assertEqual(answer_to_label, reversed_label_to_answer)
 
     def test_correct_data_entry(self):
         with self.assertRaises(ValueError):
-            self.classifier.train(self.questions[0:1], self.answers[0:1])
+            self.classifier.train(self.questions[:1], self.answers[:1])
 
-        if type(self.classifier.clf) is\
-                sklearn.linear_model.logistic.LogisticRegression:
+        if (type(self.classifier.clf) is
+                sklearn.linear_model.logistic.LogisticRegression):
             with self.assertRaises(sklearn.exceptions.NotFittedError):
                 self.classifier.predict('')
 
@@ -52,11 +55,10 @@ class TestIntentClassifier(unittest.TestCase):
         clf = self.classifier.clf
         label_to_answer = self.classifier.label_to_answer
         answer_to_label = self.classifier.answer_to_label
+
         self.classifier.save(self.checkpoint_path)
         self.classifier.load(self.checkpoint_path)
 
-        self.assertEqual(clf.get_params(),
-                         self.classifier.clf.get_params())
         self.assertEqual(clf.coef_.tolist(),
                          self.classifier.clf.coef_.tolist())
         self.assertEqual(label_to_answer,
