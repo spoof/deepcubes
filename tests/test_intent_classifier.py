@@ -25,7 +25,6 @@ class TestIntentClassifier(unittest.TestCase):
                 self.questions.append(question)
                 self.answers.append(answer)
 
-        self.model_path = 'scripts/models/model-1.pickle'
         self.checkpoint_path = 'tests/data/test.checkpoint'
 
     def test_environment_variable(self):
