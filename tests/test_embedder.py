@@ -15,15 +15,15 @@ class TestEmbedder(unittest.TestCase):
         np.testing.assert_almost_equal(generated_vector, correct_vector, 1)
 
     def test_get_lemmitize_words(self):
-        words = [
+        words = ' '.join([
             'компании',
             'Робот',
             'какая',
             'называетесь',
             'нейросетей',
             'ваша',
-            ]
-        words = ' '.join(words)
+            ])
+
         result = [
             'компания_S',
             'робот_S',

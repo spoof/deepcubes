@@ -38,7 +38,8 @@ class TestIntentClassifier(unittest.TestCase):
         reversed_label_to_answer = tuple(map(lambda x: (x[1], x[0]),
                                              label_to_answer))
 
-        self.assertEqual(answer_to_label, reversed_label_to_answer)
+        self.assertEqual(sorted(answer_to_label),
+                         sorted(reversed_label_to_answer))
 
     def test_correct_data_entry(self):
         with self.assertRaises(ValueError):
