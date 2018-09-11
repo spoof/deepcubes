@@ -10,6 +10,7 @@ embedder = Embedder(os.environ['INTENT_CLASSIFIER_MODEL'])
 classifier = IntentClassifier(embedder)
 
 
+# JSON for live dialog
 questions, answers = [], []
 
 # parse data from json
@@ -26,18 +27,25 @@ for label, category in enumerate(data):
 
 model_path = "scripts/models/model-1.pickle"
 
-"""
+classifier.train(questions, answers)
+classifier.save(model_path)
+
+# Data for 7 call-center categories
+questions, answers = [], []
+
 # parse from pandas data frame
-data = pd.read_csv("data/7_ml_quests.csv")
+data = pd.read_csv("data/vera_ml_7cat.csv")
 for column in data.columns:
-    for question in data.loc[
+    values = data.loc[
         ~pd.isnull(data[column])
-    ][column].values:
+    ][column].values
+
+    answer = values[0].strip()
+    for question in values[1:]:
         questions.append(question)
-        answers.append(column.strip())
+        answers.append(answer)
 
 model_path = "scripts/models/model-2.pickle"
-"""
 
 classifier.train(questions, answers)
 classifier.save(model_path)
