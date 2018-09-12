@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify
 import os
 import json
-import datetime
 import logging
 
 from intentclf.models import Embedder
