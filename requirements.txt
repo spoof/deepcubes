@@ -1,3 +1,4 @@
 gensim
 sklearn
 pandas
+pymystem3

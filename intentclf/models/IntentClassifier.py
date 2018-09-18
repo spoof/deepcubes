@@ -1,6 +1,7 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.exceptions import NotFittedError
 import pickle
+import string
 
 
 class IntentClassifier(object):
@@ -15,6 +16,8 @@ class IntentClassifier(object):
 
         self.label_to_answer = dict()
         self.answer_to_label = dict()
+        self.question_to_label = dict()
+        self.exclude = set(string.punctuation)
 
     def train(self, questions, answers):
         """Train classifier at question-answer pairs"""
@@ -22,6 +25,7 @@ class IntentClassifier(object):
         X, Y = [], []
         self.label_to_answer = dict()
         self.answer_to_label = dict()
+        self.question_to_label = dict()
 
         for question, answer in zip(questions, answers):
             if answer not in self.answer_to_label:
@@ -32,11 +36,19 @@ class IntentClassifier(object):
             X.append(self.embedder.get_vector(question))
             Y.append(self.answer_to_label[answer])
 
+            question_cleared = ''.join(ch for ch in question
+                                       if ch not in self.exclude)
+            self.question_to_label[question_cleared.lower()
+                ] = self.answer_to_label[answer]
+
         self.clf.fit(X, Y)
 
     def predict(self, query):
         query_vector = self.embedder.get_vector(query)
-
+        query_cleared = ''.join(ch for ch in query if ch not in self.exclude)
+        query_cleared = query_cleared.lower()
+        if query_cleared.lower() in self.question_to_label:
+            return self.label_to_answer[self.question_to_label[query_cleared]]
         try:
             predict_label = self.clf.predict([query_vector])[0]
         except NotFittedError as e:
@@ -52,6 +64,7 @@ class IntentClassifier(object):
                     "model": self.clf,
                     "label_to_answer": self.label_to_answer,
                     "answer_to_label": self.answer_to_label,
+                    "question_to_label": self.question_to_label,
                 },
                 protocol=pickle.HIGHEST_PROTOCOL,
                 file=handle
@@ -64,3 +77,4 @@ class IntentClassifier(object):
         self.clf = data["model"]
         self.label_to_answer = data["label_to_answer"]
         self.answer_to_label = data["answer_to_label"]
+        self.question_to_label = data["question_to_label"]
