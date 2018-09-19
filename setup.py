@@ -26,5 +26,5 @@ setup(
     packages=['intentclf', 'intentclf.models'],
 
     keywords='nlp',
-    install_requires=["gensim", "sklearn", "pandas"],
+    install_requires=["gensim", "sklearn", "pandas", "pymystem3"],
 )
