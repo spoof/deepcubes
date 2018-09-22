@@ -78,13 +78,13 @@ def answer():
 def train():
     if (
         request.method not in ["GET", "POST"] or
-        "intentjson" not in request.args
+        "intent_json" not in request.args
     ):
         return jsonify({
             "message": "Please sent GET or POST query with `intent_json` keys",
         })
-    intentclf = IntentClassifier(embedder)
 
+    intentclf = IntentClassifier(embedder)
     questions, answers = [], []
 
     # parse data from json
@@ -92,7 +92,7 @@ def train():
         data = json.loads(request.args["intent_json"])
     except:
         return jsonify({
-            "message": "Please send correct json object",
+            "message": "Please send correct json object"
         })
 
     for label, category in enumerate(data):
@@ -106,6 +106,8 @@ def train():
         return jsonify({
             "message": "For training the model requires 2 or more intents",
         })
+
+    intentclf.train(questions, answers)
 
     new_model_id = get_sorted_models_ids(models_storage)[-1] + 1
     intentclf.save(models_storage + 'model-{}.pickle'.format(new_model_id))
