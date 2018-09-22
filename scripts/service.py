@@ -78,7 +78,8 @@ def answer():
 def train():
     if (
         request.method not in ["GET", "POST"] or
-        "intent_json" not in request.args
+        ("intent_json" not in request.args and 
+            "intent_json" not in request.form)
     ):
         return jsonify({
             "message": "Please sent GET or POST query with `intent_json` keys",
@@ -88,9 +89,11 @@ def train():
     questions, answers = [], []
 
     # parse data from json
-    try:
+    if 'intent_json' in request.args:
         data = json.loads(request.args["intent_json"])
-    except:
+    elif 'intent_json' in request.form:
+        data = json.loads(request.form["intent_json"])
+    else:
         return jsonify({
             "message": "Please send correct json object"
         })
