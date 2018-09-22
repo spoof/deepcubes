@@ -81,7 +81,7 @@ def train():
         "intentjson" not in request.args
     ):
         return jsonify({
-            "message": "Please sent GET or POST query with `intentjson` keys",
+            "message": "Please sent GET or POST query with `intent_json` keys",
         })
     intentclf = IntentClassifier(embedder)
 
@@ -89,7 +89,7 @@ def train():
 
     # parse data from json
     try:
-        data = json.loads(request.args["intentjson"])
+        data = json.loads(request.args["intent_json"])
     except:
         return jsonify({
             "message": "Please send correct json object",
