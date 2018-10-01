@@ -65,12 +65,13 @@ def answer():
             request.args.get("question")
         )
     )
-    answer = classifier.predict(request.args.get("question"))
+    answer, probability = classifier.predict(request.args.get("question"))
 
     logging.info('predicted intent: {}'.format(answer))
 
     return jsonify({
         "answer": answer,
+        "probability": probability,
     })
 
 
@@ -78,7 +79,7 @@ def answer():
 def train():
     if (
         request.method not in ["GET", "POST"] or
-        ("intent_json" not in request.args and 
+        ("intent_json" not in request.args and
             "intent_json" not in request.form)
     ):
         return jsonify({

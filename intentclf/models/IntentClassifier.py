@@ -2,6 +2,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.exceptions import NotFittedError
 import pickle
 import string
+import numpy as np
 
 
 class IntentClassifier(object):
@@ -46,14 +47,18 @@ class IntentClassifier(object):
         query_vector = self.embedder.get_vector(query)
         query_cleared = self._text_clean(query)
         if query_cleared in self.question_to_label:
-            return self.label_to_answer[self.question_to_label[query_cleared]]
+            return (
+                self.label_to_answer[self.question_to_label[query_cleared]],
+                1.0
+            )
         try:
             predict_label = self.clf.predict([query_vector])[0]
+            max_probability = np.amax(self.clf.predict_proba([query_vector]))
         except NotFittedError as e:
             # TODO(dima): implement logic
             raise e
 
-        return self.label_to_answer[predict_label]
+        return self.label_to_answer[predict_label], max_probability
 
     def save(self, path):
         with open(path, "wb") as handle:
