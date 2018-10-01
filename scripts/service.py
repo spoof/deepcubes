@@ -65,7 +65,7 @@ def answer():
             request.args.get("question")
         )
     )
-    answer, probability = classifier.predict(request.args.get("question"))
+    answer, probability = classifier.predict(request.args.get("question").strip())
 
     logging.info('predicted intent: {}'.format(answer))
 
@@ -103,8 +103,8 @@ def train():
         answer = category["answers"][0]
 
         for question in category["questions"]:
-            questions.append(question)
-            answers.append(answer)
+            questions.append(question.strip())
+            answers.append(answer.strip())
 
     if len(data) < 2:
         return jsonify({
