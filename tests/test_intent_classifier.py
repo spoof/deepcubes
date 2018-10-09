@@ -25,7 +25,7 @@ class TestIntentClassifier(unittest.TestCase):
                 self.questions.append(question)
                 self.answers.append(answer)
 
-        self.checkpoint_path = 'tests/data/test.checkpoint'
+        self.checkpoint_path = 'tests/data/'
 
     def test_environment_variable(self):
         self.assertIn('INTENT_CLASSIFIER_MODEL', os.environ)
@@ -57,8 +57,8 @@ class TestIntentClassifier(unittest.TestCase):
         label_to_answer = self.classifier.label_to_answer
         answer_to_label = self.classifier.answer_to_label
 
-        self.classifier.save(self.checkpoint_path)
-        self.classifier.load(self.checkpoint_path)
+        model_id = self.classifier.save(self.checkpoint_path)
+        self.classifier.load(model_id, self.checkpoint_path)
 
         self.assertEqual(clf.coef_.tolist(),
                          self.classifier.clf.coef_.tolist())
@@ -67,4 +67,6 @@ class TestIntentClassifier(unittest.TestCase):
         self.assertEqual(answer_to_label,
                          self.classifier.answer_to_label)
 
-        os.remove(self.checkpoint_path)
+        os.remove(os.path.join(
+            self.checkpoint_path, 'model-{}.pickle'.format(model_id))
+        )

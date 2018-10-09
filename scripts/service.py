@@ -7,6 +7,7 @@ from intentclf.models import Embedder
 from intentclf.models import IntentClassifier
 
 models_storage = 'scripts/models/'
+trash_questions_path = 'scripts/data/trash_questions.csv'
 
 print("Open log file...")
 logging.basicConfig(
@@ -20,20 +21,6 @@ embedder = Embedder(os.environ['INTENT_CLASSIFIER_MODEL'])
 
 print("Prepare app...")
 app = Flask(__name__)
-
-
-def get_sorted_models_ids(path):
-    models = [
-        file_name for file_name in os.listdir(models_storage) if (
-            'pickle' in file_name
-        )
-    ]
-
-    models_ids = map(
-        lambda m: int(m.split('model-')[1].split('.pickle')[0]),
-        models
-        )
-    return sorted(models_ids)
 
 
 @app.route("/answer", methods=["GET"])
@@ -51,11 +38,9 @@ def answer():
 
     model_id = request.args.get("id")
 
-    if int(model_id) in get_sorted_models_ids(models_storage):
-        classifier.load(
-            "scripts/models/model-{}.pickle".format(model_id)
-        )
-    else:
+    try:
+        classifier.load(model_id, models_storage)
+    except FileNotFoundError:
         return jsonify({
             "message": "Model with id {} not found".format(model_id),
         })
@@ -65,13 +50,16 @@ def answer():
             request.args.get("question")
         )
     )
-    answer, probability = classifier.predict(request.args.get("question").strip())
+    answer, probability = classifier.predict(
+        request.args.get("question").strip()
+    )
 
     logging.info('predicted intent: {}'.format(answer))
 
     return jsonify({
         "answer": answer,
         "probability": probability,
+        "threshold": classifier.threshold,
     })
 
 
@@ -98,7 +86,6 @@ def train():
         return jsonify({
             "message": "Please send correct json object"
         })
-
     for label, category in enumerate(data):
         answer = category["answers"][0]
 
@@ -112,9 +99,11 @@ def train():
         })
 
     intentclf.train(questions, answers)
-
-    new_model_id = get_sorted_models_ids(models_storage)[-1] + 1
-    intentclf.save(models_storage + 'model-{}.pickle'.format(new_model_id))
+    if os.path.isfile(trash_questions_path):
+        intentclf.threshold_calc(trash_questions_path)
+    else:
+        intentclf.threshold_calc()
+    new_model_id = intentclf.save(models_storage)
     logging.info('saved model with id {}'.format(new_model_id))
 
     return jsonify({
