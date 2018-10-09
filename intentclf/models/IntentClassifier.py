@@ -96,7 +96,7 @@ class IntentClassifier(object):
                 itself_probabilities.append(max_probability)
 
         threshold_on_itself = self._get_threshold_value(
-            itself_probabilities, itself_percent, side='left'
+            itself_probabilities, itself_percent, side='right'
         )
 
         if threshold_on_trash:
@@ -104,8 +104,8 @@ class IntentClassifier(object):
         else:
             self.threshold = threshold_on_itself
 
-    def _get_threshold_value(self, list_, percent, side='right'):
-        if side is 'left':
+    def _get_threshold_value(self, list_, percent, side='left'):
+        if side is 'right':
             percent = 1 - percent
         N = len(list_)
         for idx, value in enumerate(sorted(list_)):
