@@ -6,8 +6,8 @@ import logging
 from intentclf.models import Embedder
 from intentclf.models import IntentClassifier
 
-models_storage = 'scripts/models/'
-trash_questions_path = 'scripts/data/trash_questions.csv'
+MODEL_STORAGE = 'scripts/models/'
+TRASH_QUESTIONS_PATH = 'scripts/data/trash_questions.csv'
 
 print("Open log file...")
 logging.basicConfig(
@@ -39,7 +39,7 @@ def answer():
     model_id = request.args.get("id")
 
     try:
-        classifier.load(model_id, models_storage)
+        classifier.load(model_id, MODEL_STORAGE)
     except FileNotFoundError:
         return jsonify({
             "message": "Model with id {} not found".format(model_id),
@@ -99,11 +99,11 @@ def train():
         })
 
     intentclf.train(questions, answers)
-    if os.path.isfile(trash_questions_path):
-        intentclf.threshold_calc(trash_questions_path)
+    if os.path.isfile(TRASH_QUESTIONS_PATH):
+        intentclf.threshold_calc(TRASH_QUESTIONS_PATH)
     else:
         intentclf.threshold_calc()
-    new_model_id = intentclf.save(models_storage)
+    new_model_id = intentclf.save(MODEL_STORAGE)
     logging.info('saved model with id {}'.format(new_model_id))
 
     return jsonify({

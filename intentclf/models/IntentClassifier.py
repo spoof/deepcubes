@@ -48,14 +48,13 @@ class IntentClassifier(object):
     def predict(self, query, exact_match=True):
         query_vector = self.embedder.get_vector(query)
         query_cleared = self._text_clean(query)
-        if exact_match:
-            if query_cleared in self.question_to_label:
-                return (
-                    self.label_to_answer[
-                        self.question_to_label[query_cleared]
-                    ],
-                    1.0
-                )
+        if exact_match and query_cleared in self.question_to_label:
+            return (
+                self.label_to_answer[
+                    self.question_to_label[query_cleared]
+                ],
+                1.0
+            )
         try:
             predict_label = self.clf.predict([query_vector])[0]
             max_probability = np.amax(self.clf.predict_proba([query_vector]))
@@ -108,17 +107,12 @@ class IntentClassifier(object):
         if side is 'right':
             percent = 1 - percent
         N = len(list_)
-        for idx, value in enumerate(sorted(list_)):
-            if idx/N > percent:
-                return value
-        return value
+        threshold_idx = int(percent*N)
+        threshold_value = sorted(list_)[threshold_idx]
+        return threshold_value
 
     def save(self, models_storage_path):
-        sorted_models_ids = self._get_sorted_models_ids(models_storage_path)
-        if len(sorted_models_ids) == 0:
-            new_model_id = 0
-        else:
-            new_model_id = sorted_models_ids[-1] + 1
+        new_model_id = self._get_new_model_id(models_storage_path)
         path = os.path.join(
             models_storage_path, 'model-{}.pickle'.format(new_model_id)
         )
@@ -137,7 +131,7 @@ class IntentClassifier(object):
             )
         return new_model_id
 
-    def _get_sorted_models_ids(self, path):
+    def _get_new_model_id(self, path):
         models = [
             file_name for file_name in os.listdir(path) if (
                 'pickle' in file_name
@@ -147,7 +141,9 @@ class IntentClassifier(object):
             lambda m: int(m.split('model-')[1].split('.pickle')[0]),
             models
             )
-        return sorted(models_ids)
+        sorted_ids = sorted(models_ids)
+        new_model_id = 0 if len(sorted_ids) == 0 else sorted_ids[-1] + 1
+        return new_model_id
 
     def load(self, model_id, models_storage_path):
         path = os.path.join(
