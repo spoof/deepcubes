@@ -97,7 +97,6 @@ class IntentClassifier(object):
         threshold_on_itself = self._get_threshold_value(
             itself_probabilities, itself_percent, side='right'
         )
-
         if threshold_on_trash:
             self.threshold = (threshold_on_itself + threshold_on_trash)/2
         else:
