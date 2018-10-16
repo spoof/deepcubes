@@ -14,10 +14,14 @@ classifier = IntentClassifier(embedder)
 
 
 def main(csv_path=None, json_path=None, trash_questions_path=None):
-    new_model_id = None
-    if json_path:
-        questions, answers = [], []
+    if not csv_path and not json_path:
+        print('Missing csv_path or json_path')
+        return
 
+    new_model_id = None
+    questions, answers = [], []
+
+    if json_path:
         # parse data from json
         with open(json_path, "r") as handle:
             data = json.load(handle)
@@ -29,13 +33,7 @@ def main(csv_path=None, json_path=None, trash_questions_path=None):
                 questions.append(question)
                 answers.append(answer)
 
-        classifier.train(questions, answers)
-        classifier.threshold_calc(trash_questions_path)
-        new_model_id = classifier.save(MODEL_STORAGE)
-
     if csv_path:
-        questions, answers = [], []
-
         # parse from pandas data frame
         data = pd.read_csv(csv_path)
         for column in data.columns:
@@ -48,9 +46,9 @@ def main(csv_path=None, json_path=None, trash_questions_path=None):
                 questions.append(question)
                 answers.append(answer)
 
-        classifier.train(questions, answers)
-        classifier.threshold_calc(trash_questions_path)
-        new_model_id = classifier.save(MODEL_STORAGE)
+    classifier.train(questions, answers)
+    classifier.threshold_calc(trash_questions_path)
+    new_model_id = classifier.save(MODEL_STORAGE)
 
     if new_model_id is not None:
         print('Created model with id {}'.format(new_model_id))
