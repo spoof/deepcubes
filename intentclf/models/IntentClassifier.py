@@ -48,13 +48,13 @@ class IntentClassifier(object):
     def predict(self, query, exact_match=True):
         query_vector = self.embedder.get_vector(query)
         query_cleared = self._text_clean(query)
+
         if exact_match and query_cleared in self.question_to_label:
             return (
-                self.label_to_answer[
-                    self.question_to_label[query_cleared]
-                ],
+                self.label_to_answer[self.question_to_label[query_cleared]],
                 1.0
             )
+
         try:
             predict_label = self.clf.predict([query_vector])[0]
             max_probability = np.amax(self.clf.predict_proba([query_vector]))
@@ -90,24 +90,25 @@ class IntentClassifier(object):
                 self.answer_to_label[self.predict(question)[0]] ==
                 self.question_to_label[question]
             ):
-
                 _, max_probability = self.predict(question, exact_match=False)
                 itself_probabilities.append(max_probability)
 
         threshold_on_itself = self._get_threshold_value(
             itself_probabilities, itself_percent, side='right'
         )
+
         if threshold_on_trash:
-            self.threshold = (threshold_on_itself + threshold_on_trash)/2
+            self.threshold = (threshold_on_itself + threshold_on_trash) / 2
         else:
             self.threshold = threshold_on_itself
 
     def _get_threshold_value(self, list_, percent, side='left'):
-        if side is 'right':
+        if side == 'right':
             percent = 1 - percent
-        N = len(list_)
-        threshold_idx = int(percent*N)
+
+        threshold_idx = int(percent * len(list_))
         threshold_value = sorted(list_)[threshold_idx]
+
         return threshold_value
 
     def save(self, models_storage_path):
@@ -128,26 +129,29 @@ class IntentClassifier(object):
                 protocol=pickle.HIGHEST_PROTOCOL,
                 file=handle
             )
+
         return new_model_id
 
     def _get_new_model_id(self, path):
-        models = [
-            file_name for file_name in os.listdir(path) if (
-                'pickle' in file_name
-            )
-        ]
+        models = [file_name for file_name in os.listdir(path) if (
+            'pickle' in file_name
+        )]
+
         models_ids = map(
             lambda m: int(m.split('model-')[1].split('.pickle')[0]),
             models
-            )
+        )
+
         sorted_ids = sorted(models_ids)
-        new_model_id = 0 if len(sorted_ids) == 0 else sorted_ids[-1] + 1
+        new_model_id = sorted_ids[-1] + 1 if len(sorted_ids) else 0
+
         return new_model_id
 
     def load(self, model_id, models_storage_path):
         path = os.path.join(
             models_storage_path, "model-{}.pickle".format(model_id)
         )
+
         with open(path, "rb") as handle:
             data = pickle.load(handle)
 
