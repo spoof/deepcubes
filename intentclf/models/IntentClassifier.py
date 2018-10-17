@@ -1,9 +1,12 @@
 from sklearn.linear_model import LogisticRegression
 from sklearn.exceptions import NotFittedError
+from sklearn.model_selection import KFold
+
 import pickle
 import string
 import numpy as np
 import os
+from collections import defaultdict
 
 
 class IntentClassifier(object):
@@ -20,6 +23,7 @@ class IntentClassifier(object):
         self.answer_to_label = dict()
         self.question_to_label = dict()
         self.threshold = None
+        self.label_to_accuracy_score = None
         self.exclude = set(string.punctuation)
 
     def train(self, questions, answers):
@@ -44,6 +48,46 @@ class IntentClassifier(object):
                 answer]
 
         self.clf.fit(X, Y)
+
+    def cross_val(self, n_splits=10):
+        cross_val_clf = LogisticRegression(
+            solver="liblinear",
+            multi_class="ovr"
+        )
+        X, Y = [], []
+
+        for question, label in self.question_to_label.items():
+            X.append(self.embedder.get_vector(question))
+            Y.append(label)
+
+        cv = KFold(n_splits=n_splits, shuffle=True)
+
+        y_true, y_pred = [], []
+        X = np.array(X)
+        Y = np.array(Y)
+
+        for train_index, test_index in cv.split(X):
+            X_train, X_test = X[train_index], X[test_index]
+            Y_train, Y_test = Y[train_index], Y[test_index]
+
+            cross_val_clf.fit(X_train, Y_train)
+            Y_predict = cross_val_clf.predict(X_test)
+
+            y_true.append(list(Y_test))
+            y_pred.append(list(Y_predict))
+
+        y_true_list = list(np.concatenate(y_true))
+        y_pred_list = list(np.concatenate(y_pred))
+
+        self.label_to_predict_list = defaultdict(list)
+
+        for label, predict_label in zip(y_true_list, y_pred_list):
+            self.label_to_predict_list[label].append(label == predict_label)
+
+        self.label_to_accuracy_score = dict()
+        for label in self.label_to_predict_list:
+            predictions = self.label_to_predict_list[label]
+            self.label_to_accuracy_score[label] = np.mean(predictions)
 
     def predict(self, query, exact_match=True):
         query_vector = self.embedder.get_vector(query)
@@ -125,6 +169,7 @@ class IntentClassifier(object):
                     "answer_to_label": self.answer_to_label,
                     "question_to_label": self.question_to_label,
                     "threshold": self.threshold,
+                    "accuracy_scores": self.label_to_accuracy_score,
                 },
                 protocol=pickle.HIGHEST_PROTOCOL,
                 file=handle
@@ -159,7 +204,9 @@ class IntentClassifier(object):
         self.label_to_answer = data["label_to_answer"]
         self.answer_to_label = data["answer_to_label"]
         self.question_to_label = data["question_to_label"]
-        self.threshold = data["threshold"]
+        self.threshold = data["threshold"] if "threshold" in data else None
+        self.label_to_accuracy_score = data["accuracy_scores"] if (
+            "accuracy_scores" in data) else None
 
     def _text_clean(self, text):
         text_cleared = ''.join(ch for ch in text if ch not in self.exclude)

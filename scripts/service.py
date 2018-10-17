@@ -53,13 +53,18 @@ def answer():
     answer, probability = classifier.predict(
         request.args.get("question").strip()
     )
-
+    if classifier.label_to_accuracy_score:
+        label = classifier.answer_to_label[answer]
+        accuracy_score = classifier.label_to_accuracy_score[label]
+    else:
+        accuracy_score = None
     logging.info('predicted intent: {}'.format(answer))
 
     return jsonify({
         "answer": answer,
         "probability": probability,
         "threshold": classifier.threshold,
+        "accuracy_score": accuracy_score,
     })
 
 

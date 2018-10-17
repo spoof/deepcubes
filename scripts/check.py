@@ -48,6 +48,7 @@ def main(csv_path=None, json_path=None, trash_questions_path=None):
 
     classifier.train(questions, answers)
     classifier.threshold_calc(trash_questions_path)
+    classifier.cross_val()
     new_model_id = classifier.save(MODEL_STORAGE)
 
     if new_model_id is not None:
