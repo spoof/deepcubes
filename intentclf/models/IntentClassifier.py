@@ -74,7 +74,7 @@ class IntentClassifier(object):
             Y_predict = cross_val_clf.predict(X_test)
 
             y_true.append(list(Y_test))
-            y_pred.append(list(Y_predict))
+            y_pred.append(Y_predict)
 
         y_true_list = list(np.concatenate(y_true))
         y_pred_list = list(np.concatenate(y_pred))
