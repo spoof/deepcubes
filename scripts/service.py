@@ -35,9 +35,7 @@ def answer():
         })
 
     classifier = IntentClassifier(embedder)
-
     model_id = request.args.get("id")
-
     try:
         classifier.load(model_id, MODEL_STORAGE)
     except FileNotFoundError:
@@ -45,24 +43,18 @@ def answer():
             "message": "Model with id {} not found".format(model_id),
         })
 
-    logging.info(
-        'predicting intent for question: {}'.format(
-            request.args.get("question")
-        )
-    )
+    question = request.args.get("question")
+    logging.info('predicting intent for question: {}'.format(question))
 
     if "top" in request.args:
         try:
             top = int(request.args.get("top"))
         except:
             return jsonify({
-                "message": "Please specify `top` key as int"
+                "message": "Please specify `top` key as int value"
             })
 
-        model_answer = classifier.predict_top(
-            request.args.get("question").strip(),
-            top
-        )
+        model_answer = classifier.predict_top(question.strip(), top)
 
         output = []
         for answer, probability in model_answer:
@@ -85,9 +77,7 @@ def answer():
         return jsonify(output)
 
     else:
-        answer, probability = classifier.predict(
-            request.args.get("question").strip()
-        )
+        answer, probability = classifier.predict(question.strip())
 
         if classifier.label_to_accuracy_score:
             label = classifier.answer_to_label[answer]
