@@ -59,6 +59,7 @@ def answer():
     else:
         accuracy_score = None
     logging.info('predicted intent: {}'.format(answer))
+    logging.info('probability: {}'.format(probability))
 
     return jsonify({
         "answer": answer,
@@ -118,4 +119,5 @@ def train():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3335, debug=False)
+    port = 3339 if os.path.isfile("_DEVELOP") else 3335
+    app.run(host="0.0.0.0", port=port, debug=False)
