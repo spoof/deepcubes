@@ -122,6 +122,10 @@ class IntentClassifier(object):
             probas = self.clf.predict_proba([query_vector])[0]
             order = np.argsort(probas)[::-1]
 
+            # TODO: simplify
+            if top == -1:
+                top = len(order)
+
             return [
                 (self.label_to_answer[label], probas[label])
                 for label in order[:top]

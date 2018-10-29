@@ -52,9 +52,16 @@ def answer():
     )
 
     if "top" in request.args:
+        try:
+            top = int(request.args.get("top"))
+        except:
+            return jsonify({
+                "message": "Please specify `top` key as int"
+            })
+
         model_answer = classifier.predict_top(
             request.args.get("question").strip(),
-            int(request.args.get("top"))
+            top
         )
 
         output = []
