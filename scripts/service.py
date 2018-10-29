@@ -50,23 +50,53 @@ def answer():
             request.args.get("question")
         )
     )
-    answer, probability = classifier.predict(
-        request.args.get("question").strip()
-    )
-    if classifier.label_to_accuracy_score:
-        label = classifier.answer_to_label[answer]
-        accuracy_score = classifier.label_to_accuracy_score[label]
-    else:
-        accuracy_score = None
-    logging.info('predicted intent: {}'.format(answer))
-    logging.info('probability: {}'.format(probability))
 
-    return jsonify({
-        "answer": answer,
-        "probability": probability,
-        "threshold": classifier.threshold,
-        "accuracy_score": accuracy_score,
-    })
+    if "top" in request.args:
+        model_answer = classifier.predict_top(
+            request.args.get("question").strip(),
+            int(request.args.get("top"))
+        )
+
+        output = []
+        for answer, probability in model_answer:
+            if classifier.label_to_accuracy_score:
+                label = classifier.answer_to_label[answer]
+                accuracy_score = classifier.label_to_accuracy_score[label]
+            else:
+                accuracy_score = None
+
+            output.append({
+                "answer": answer,
+                "probability": probability,
+                "threshold": classifier.threshold,
+                "accuracy_score": accuracy_score,
+            })
+
+            logging.info('predicted intent: {}'.format(answer))
+            logging.info('probability: {}'.format(probability))
+
+        return jsonify(output)
+
+    else:
+        answer, probability = classifier.predict(
+            request.args.get("question").strip()
+        )
+
+        if classifier.label_to_accuracy_score:
+            label = classifier.answer_to_label[answer]
+            accuracy_score = classifier.label_to_accuracy_score[label]
+        else:
+            accuracy_score = None
+
+        logging.info('predicted intent: {}'.format(answer))
+        logging.info('probability: {}'.format(probability))
+
+        return jsonify({
+            "answer": answer,
+            "probability": probability,
+            "threshold": classifier.threshold,
+            "accuracy_score": accuracy_score,
+        })
 
 
 @app.route("/train", methods=["GET", "POST"])

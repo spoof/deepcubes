@@ -108,6 +108,29 @@ class IntentClassifier(object):
 
         return self.label_to_answer[predict_label], max_probability
 
+    def predict_top(self, query, top, exact_match=True):
+        query_vector = self.embedder.get_vector(query)
+        query_cleared = self._text_clean(query)
+
+        if exact_match and query_cleared in self.question_to_label:
+            return [(
+                self.label_to_answer[self.question_to_label[query_cleared]],
+                1.0
+            )]
+
+        try:
+            probas = self.clf.predict_proba([query_vector])[0]
+            order = np.argsort(probas)[::-1]
+
+            return [
+                (self.label_to_answer[label], probas[label])
+                for label in order[:top]
+            ]
+
+        except NotFittedError as e:
+            # TODO(dima): implement logic
+            raise e
+
     def threshold_calc(
         self,
         trash_questions_path=None,
