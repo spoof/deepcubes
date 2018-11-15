@@ -6,9 +6,10 @@ from pymystem3 import Mystem
 class Embedder(object):
     """Word embedder"""
 
-    def __init__(self, path):
+    def __init__(self, path, language=None):
         self.model = KeyedVectors.load(path, mmap='r')
         self.stemmer = Mystem()
+        self.language = language
 
     def _get_lemmitize_words(self, text):
         """Lemmtize text using mystem stemmer"""
@@ -18,7 +19,8 @@ class Embedder(object):
         for word in processed:
             if "analysis" not in word or not len(word["analysis"]):
                 continue
-
+            if len(word['text']) <= 3:
+                continue
             analysis = word["analysis"][0]
             if "lex" not in analysis or "gr" not in analysis:
                 continue
@@ -30,9 +32,16 @@ class Embedder(object):
 
         return lemmas
 
+    def _get_simple_lemmitize_words(self, text):
+        words = [word.lower() for word in text.split() if len(word) > 2]
+        return words
+
     def get_vector(self, text):
         """Calculate vector for sentence as mean vector of all its words"""
-        words = self._get_lemmitize_words(text)
+        if self.language == 'ru':
+            words = self._get_lemmitize_words(text)
+        else:
+            words = self._get_simple_lemmitize_words(text)
 
         vector = np.zeros(self.model.vector_size)
         words_in_model = 0

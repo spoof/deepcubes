@@ -90,8 +90,8 @@ class IntentClassifier(object):
             self.label_to_accuracy_score[label] = np.mean(predictions)
 
     def predict(self, query, exact_match=True):
-        query_vector = self.embedder.get_vector(query)
         query_cleared = self._text_clean(query)
+        query_vector = self.embedder.get_vector(query_cleared)
 
         if exact_match and query_cleared in self.question_to_label:
             return (
