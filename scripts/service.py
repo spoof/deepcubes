@@ -10,6 +10,7 @@ from intentclf.models import IntentClassifier
 
 MODEL_STORAGE = 'scripts/models/'
 TRASH_QUESTIONS_PATH = 'scripts/data/trash_questions.csv'
+DAFAULT_EMBEDDER_PATH = os.environ['INTENT_CLASSIFIER_MODEL']
 
 embedders = dict()
 
@@ -21,14 +22,14 @@ logging.basicConfig(
 )
 
 print("Load default embedder...")
-default_embedder = Embedder(os.environ['INTENT_CLASSIFIER_MODEL'])
+default_embedder = Embedder(DAFAULT_EMBEDDER_PATH)
 
 print("Prepare app...")
 app = Flask(__name__)
 
 
 def load_embedders(model_id_list):
-    current_embedders = dict()
+    current_embedders = {DAFAULT_EMBEDDER_PATH: default_embedder}
     for model_id in model_id_list:
         print("Load embedder for model {} ...".format(model_id))
         model_path = os.path.join(
