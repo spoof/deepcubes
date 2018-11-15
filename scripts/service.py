@@ -1,13 +1,17 @@
 from flask import Flask, request, jsonify
 import os
 import json
+import pickle
 import logging
+import argparse
 
 from intentclf.models import Embedder
 from intentclf.models import IntentClassifier
 
 MODEL_STORAGE = 'scripts/models/'
 TRASH_QUESTIONS_PATH = 'scripts/data/trash_questions.csv'
+
+embedders = dict()
 
 print("Open log file...")
 logging.basicConfig(
@@ -16,11 +20,31 @@ logging.basicConfig(
     level=logging.DEBUG
 )
 
-print("Load embedder...")
-embedder = Embedder(os.environ['INTENT_CLASSIFIER_MODEL'])
+print("Load default embedder...")
+default_embedder = Embedder(os.environ['INTENT_CLASSIFIER_MODEL'])
 
 print("Prepare app...")
 app = Flask(__name__)
+
+
+def load_embedders(model_id_list):
+    current_embedders = dict()
+    for model_id in model_id_list:
+        print("Load embedder for model {} ...".format(model_id))
+        model_path = os.path.join(
+            MODEL_STORAGE, "model-{}.pickle".format(model_id)
+        )
+        with open(model_path, "rb") as handle:
+            data = pickle.load(handle)
+
+        embedder_path = data['embedder_path']
+        language = data['language']
+        if embedder_path not in current_embedders:
+            embedder = Embedder(embedder_path, language)
+            current_embedders[embedder_path] = embedder
+        else:
+            embedder = current_embedders[embedder_path]
+        embedders[model_id] = embedder
 
 
 @app.route("/answer", methods=["GET"])
@@ -33,12 +57,12 @@ def answer():
         return jsonify({
             "message": "Please sent GET query with `id` and `question` keys",
         })
-
-    classifier = IntentClassifier(embedder)
-    model_id = request.args.get("id")
+    model_id = int(request.args.get("id"))
     try:
+        embedder = embedders[model_id]
+        classifier = IntentClassifier(embedder)
         classifier.load(model_id, MODEL_STORAGE)
-    except FileNotFoundError:
+    except (FileNotFoundError, KeyError):
         return jsonify({
             "message": "Model with id {} not found".format(model_id),
         })
@@ -107,7 +131,7 @@ def train():
             "message": "Please sent GET or POST query with `intent_json` keys",
         })
 
-    intentclf = IntentClassifier(embedder)
+    intentclf = IntentClassifier(default_embedder)
     questions, answers = [], []
 
     # parse data from json
@@ -146,5 +170,14 @@ def train():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description='Launch intent classifier API'
+    )
+    parser.add_argument(
+        '-m', '--model_id_list', nargs='+', type=int
+    )
+    args = parser.parse_args()
+    load_embedders(args.model_id_list)
+
     port = 3339 if os.path.isfile("_DEVELOP") else 3335
     app.run(host="0.0.0.0", port=port, debug=False)

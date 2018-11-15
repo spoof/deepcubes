@@ -7,6 +7,7 @@ class Embedder(object):
     """Word embedder"""
 
     def __init__(self, path, language=None):
+        self.path = path
         self.model = KeyedVectors.load(path, mmap='r')
         self.stemmer = Mystem()
         self.language = language

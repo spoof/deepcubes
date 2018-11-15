@@ -197,6 +197,8 @@ class IntentClassifier(object):
                     "question_to_label": self.question_to_label,
                     "threshold": self.threshold,
                     "accuracy_scores": self.label_to_accuracy_score,
+                    "embedder_path": self.embedder.path,
+                    "language": self.embedder.language
                 },
                 protocol=pickle.HIGHEST_PROTOCOL,
                 file=handle
