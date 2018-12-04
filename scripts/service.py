@@ -30,21 +30,25 @@ app = Flask(__name__)
 
 def load_embedders(model_id_list):
     current_embedders = {DAFAULT_EMBEDDER_PATH: default_embedder}
+
     for model_id in model_id_list:
         print("Load embedder for model {} ...".format(model_id))
         model_path = os.path.join(
             MODEL_STORAGE, "model-{}.pickle".format(model_id)
         )
+
         with open(model_path, "rb") as handle:
             data = pickle.load(handle)
 
         embedder_path = data['embedder_path']
         language = data['language']
+
         if embedder_path not in current_embedders:
             embedder = Embedder(embedder_path, language)
             current_embedders[embedder_path] = embedder
         else:
             embedder = current_embedders[embedder_path]
+
         embedders[model_id] = embedder
 
 
@@ -58,7 +62,9 @@ def answer():
         return jsonify({
             "message": "Please sent GET query with `id` and `question` keys",
         })
+
     model_id = int(request.args.get("id"))
+
     try:
         embedder = embedders[model_id]
         classifier = IntentClassifier(embedder)
@@ -79,46 +85,33 @@ def answer():
                 "message": "Please specify `top` key as int value"
             })
 
-        model_answer = classifier.predict_top(question.strip(), top)
-
-        output = []
-        for answer, probability in model_answer:
-            if classifier.label_to_accuracy_score:
-                label = classifier.answer_to_label[answer]
-                accuracy_score = classifier.label_to_accuracy_score[label]
-            else:
-                accuracy_score = None
-
-            output.append({
-                "answer": answer,
-                "probability": probability,
-                "threshold": classifier.threshold,
-                "accuracy_score": accuracy_score,
-            })
-
-            logging.info('predicted intent: {}'.format(answer))
-            logging.info('probability: {}'.format(probability))
-
-        return jsonify(output)
-
+        result_in_old_way = False
     else:
-        answer, probability = classifier.predict(question.strip())
+        # backward compatibility
+        top = 1
+        result_in_old_way = True
 
+    model_answer = classifier.predict_top(question.strip(), top)
+
+    output = []
+    for answer, probability in model_answer:
         if classifier.label_to_accuracy_score:
             label = classifier.answer_to_label[answer]
             accuracy_score = classifier.label_to_accuracy_score[label]
         else:
             accuracy_score = None
 
-        logging.info('predicted intent: {}'.format(answer))
-        logging.info('probability: {}'.format(probability))
-
-        return jsonify({
+        output.append({
             "answer": answer,
             "probability": probability,
             "threshold": classifier.threshold,
             "accuracy_score": accuracy_score,
         })
+
+        logging.info('predicted intent: {}'.format(answer))
+        logging.info('probability: {}'.format(probability))
+
+    return jsonify(output[0]) if result_in_old_way else jsonify(output)
 
 
 @app.route("/train", methods=["GET", "POST"])
@@ -144,6 +137,7 @@ def train():
         return jsonify({
             "message": "Please send correct json object"
         })
+
     for label, category in enumerate(data):
         answer = category["answers"][0]
 
@@ -161,6 +155,7 @@ def train():
         intentclf.threshold_calc(TRASH_QUESTIONS_PATH)
     else:
         intentclf.threshold_calc()
+
     new_model_id = intentclf.save(MODEL_STORAGE)
     logging.info('saved model with id {}'.format(new_model_id))
 
@@ -174,9 +169,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Launch intent classifier API'
     )
+
     parser.add_argument(
         '-m', '--model_id_list', nargs='+', type=int
     )
+
     args = parser.parse_args()
     load_embedders(args.model_id_list)
 
