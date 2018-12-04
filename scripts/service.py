@@ -10,7 +10,6 @@ from intentclf.models import IntentClassifier
 
 MODEL_STORAGE = 'scripts/models/'
 TRASH_QUESTIONS_PATH = 'scripts/data/trash_questions.csv'
-DAFAULT_EMBEDDER_PATH = os.environ['INTENT_CLASSIFIER_MODEL']
 
 embedders = dict()
 
@@ -22,14 +21,20 @@ logging.basicConfig(
 )
 
 print("Load default embedder...")
-default_embedder = Embedder(DAFAULT_EMBEDDER_PATH)
+default_embedders = {
+    'ru': Embedder(os.environ['INTENT_CLASSIFIER_MODEL']),
+    'en': Embedder(os.environ['INTENT_CLASSIFIER_ENG_MODEL'])
+}
 
 print("Prepare app...")
 app = Flask(__name__)
 
 
 def load_embedders(model_id_list):
-    current_embedders = {DAFAULT_EMBEDDER_PATH: default_embedder}
+    current_embedders = {
+        os.environ['INTENT_CLASSIFIER_MODEL']: default_embedders['ru'],
+        os.environ['INTENT_CLASSIFIER_ENG_MODEL']: default_embedders['en']
+    }
 
     for model_id in model_id_list:
         print("Load embedder for model {} ...".format(model_id))
@@ -122,10 +127,20 @@ def train():
             "intent_json" not in request.form)
     ):
         return jsonify({
-            "message": "Please sent GET or POST query with `intent_json` keys",
+            "message": ("Please sent GET or POST query with `intent_json`,"
+                        " `lang` keys"),
         })
 
-    intentclf = IntentClassifier(default_embedder)
+    if 'lang' in request.args:
+        language = request.args['lang']
+    elif 'lang' in request.form:
+        language = request.form['lang']
+    else:
+        language = 'ru'
+
+    intentclf = IntentClassifier(
+        default_embedders.get(language, 'ru')
+    )
     questions, answers = [], []
 
     # parse data from json
@@ -151,12 +166,11 @@ def train():
         })
 
     intentclf.train(questions, answers)
-    if os.path.isfile(TRASH_QUESTIONS_PATH):
-        intentclf.threshold_calc(TRASH_QUESTIONS_PATH)
-    else:
-        intentclf.threshold_calc()
+    intentclf.threshold_calc()
+    intentclf.cross_val()
 
     new_model_id = intentclf.save(MODEL_STORAGE)
+    load_embedders([new_model_id])
     logging.info('saved model with id {}'.format(new_model_id))
 
     return jsonify({
