@@ -31,7 +31,7 @@ The method `predict_top()` returns a list of `top` classifier answers with proba
 
 `classifier.threshold_calc()` - calculation of threshold probability
 
-`intentclf.cross_val()` - calculation of intents accuracy score
+`classifier.cross_val()` - calculation of intents accuracy score
 
 ### Loading and saving model
 
