@@ -26,6 +26,18 @@ The method `predict_top()` returns a list of `top` classifier answers with proba
 
 `classifier.predict_top(question, top)`
 
+### Additional methods
+(of the trained model)
+
+`classifier.threshold_calc()` - calculation of threshold probability
+
+`intentclf.cross_val()` - calculation of intents accuracy score
+
+### Loading and saving model
+
+`model_id = classifier.save(models_path)`
+
+`classifier.load(model_id, models_path)`
 
 ## Authors
 
