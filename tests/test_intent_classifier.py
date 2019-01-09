@@ -3,8 +3,8 @@ import os
 import json
 import sklearn
 
-from intentclf.models import Embedder
-from intentclf.models import IntentClassifier
+from deepcubes.cubes import Embedder
+from deepcubes.cubes import IntentClassifier
 
 
 class TestIntentClassifier(unittest.TestCase):

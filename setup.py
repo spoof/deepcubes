@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 from os import path
 
 here = path.abspath(path.dirname(__file__))
@@ -8,22 +8,21 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='intentclf',
+    name='deepcubes',
     version='0.0.1',
-    description='Intent Classifier',
+    description='Vera deep learning framework',
     long_description=long_description,
     long_description_content_type='text/markdown',
     license='The MIT License',
-    url='https://github.com/RobotVeraDS/intent-classifier',
+    url='https://github.com/RobotVeraDS/deepcubes',
     author='Robot Vera',
-    author_email='sm.svyat@yandex.ru',
 
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Programming Language :: Python :: 3',
     ],
 
-    packages=['intentclf', 'intentclf.models'],
+    packages=find_packages(),
 
     keywords='nlp',
     install_requires=["gensim", "sklearn", "pandas", "pymystem3"],

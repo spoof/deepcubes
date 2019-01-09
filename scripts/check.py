@@ -1,5 +1,5 @@
-from intentclf.models import Embedder
-from intentclf.models import IntentClassifier
+from deepcubes.cubes import Embedder
+from deepcubes.cubes import IntentClassifier
 
 import json
 import os

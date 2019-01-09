@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from intentclf.models import Embedder
+from deepcubes.cubes import Embedder
 
 
 class TestEmbedder(unittest.TestCase):

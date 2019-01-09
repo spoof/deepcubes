@@ -5,8 +5,8 @@ import pickle
 import logging
 import argparse
 
-from intentclf.models import Embedder
-from intentclf.models import IntentClassifier
+from deepcubes.cubes import Embedder
+from deepcubes.cubes import IntentClassifier
 
 MODEL_STORAGE = 'scripts/models/'
 TRASH_QUESTIONS_PATH = 'scripts/data/trash_questions.csv'
