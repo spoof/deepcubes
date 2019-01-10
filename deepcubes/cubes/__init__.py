@@ -1,5 +1,6 @@
-from .Embedder import Embedder
-from .IntentClassifier import IntentClassifier
 from .cube import Cube
+from .tokenizer import Tokenizer
+from .embedder import Embedder
+from .log_reg_classifier import LogRegClassifier
 
-__all__ = ["Embedder", "IntentClassifier", "Cube"]
+__all__ = ["Cube", "Tokenizer", "Embedder", "LogRegClassifier"]
