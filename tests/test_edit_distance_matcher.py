@@ -17,31 +17,31 @@ class TestEditDistanceMatcher(unittest.TestCase):
         )
 
         self.assertEqual(
-            matcher.predict("привет"),
+            matcher("привет"),
             (["first", "third", "second"], [1, 0, 0])
         )
 
         self.assertEqual(
-            matcher.predict("прувет"),
+            matcher("прувет"),
             (["first", "third", "second"], [1, 0, 0])
         )
 
         self.assertEqual(
-            matcher.predict("пруветик"),
+            matcher("пруветик"),
             (["first", "third", "second"], [0, 0, 0])
         )
 
         self.assertEqual(
-            matcher.predict("пруветик"),
+            matcher("пруветик"),
             (["first", "third", "second"], [0, 0, 0])
         )
 
         self.assertEqual(
-            matcher.predict("привед"),
+            matcher("привед"),
             (["first", "third", "second"], [1, 1, 0])
         )
 
         self.assertEqual(
-            matcher.predict("оке"),
+            matcher("оке"),
             (["first", "third", "second"], [0, 0, 1])
         )

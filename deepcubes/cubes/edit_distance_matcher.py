@@ -19,7 +19,7 @@ class EditDistanceMatcher(Cube):
 
         self.max_distance = max_distance
 
-    def predict(self, query):
+    def forward(self, query):
         labels, probas = [], []
 
         for label, texts in self.data:
