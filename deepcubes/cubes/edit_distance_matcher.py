@@ -1,9 +1,5 @@
 from deepcubes.cubes import Cube
 import editdistance as ed
-from collections import namedtuple
-
-
-EditDistanceLabel = namedtuple("EditDistanceLabel", ["label", "texts"])
 
 
 class EditDistanceMatcher(Cube):
@@ -14,8 +10,9 @@ class EditDistanceMatcher(Cube):
         self.max_distance = -1
 
     def train(self, labels, labels_texts, max_distance):
+        self.data = []
         for label, texts in zip(labels, labels_texts):
-            self.data.append(EditDistanceLabel(label, texts))
+            self.data.append((label, texts))
 
         self.max_distance = max_distance
 
