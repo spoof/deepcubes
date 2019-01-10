@@ -2,3 +2,4 @@ gensim
 sklearn
 pandas
 pymystem3
+editdistance
