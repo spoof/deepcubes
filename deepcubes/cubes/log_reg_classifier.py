@@ -1,7 +1,6 @@
 from .cube import Cube
 from sklearn.linear_model import LogisticRegression
 from sklearn.exceptions import NotFittedError
-from sklearn.model_selection import KFold
 
 import numpy as np
 import pickle
@@ -34,7 +33,9 @@ class LogRegClassifier(Cube):
             # TODO(dima): implement logic
             raise e
 
-    def save(self, name='logistic_regression.cube', path='scripts/classifiers'):
+    def save(
+        self, name='logistic_regression.cube', path='scripts/classifiers'
+    ):
         os.makedirs(path, exist_ok=True)
         with open(os.path.join(path, name), "wb") as handle:
             pickle.dump(
