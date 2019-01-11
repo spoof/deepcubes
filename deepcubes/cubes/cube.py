@@ -1,10 +1,10 @@
 class Cube(object):
     """Base class for all algorithmical blocks in framework"""
 
-    def forward(self, *input):
+    def train(self, *input):
         pass
 
-    def train(self, *input):
+    def predict(self, *input):
         pass
 
     def save(self, *input):
@@ -14,4 +14,4 @@ class Cube(object):
         pass
 
     def __call__(self, *input):
-        return self.forward(*input)
+        return self.predict(*input)

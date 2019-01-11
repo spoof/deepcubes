@@ -23,7 +23,7 @@ class VeraLiveDialog(Model):
     """Live dialog model"""
 
     def __init__(self):
-        self.embedder = NetworkEmbedder(None, None)
+        self.embedder = NetworkEmbedder()
         self.pattern_matcher = PatternMatcher()
         self.intent_classifier = LogRegClassifier()
 

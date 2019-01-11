@@ -20,7 +20,7 @@ class LogRegClassifier(Cube):
         """Train classifier at question-answer pairs"""
         self.clf.fit(X, Y)
 
-    def forward(self, vector):
+    def predict(self, vector):
         try:
             probas = self.clf.predict_proba([vector])[0]
             order = np.argsort(probas)[::-1]
