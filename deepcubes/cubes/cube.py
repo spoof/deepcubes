@@ -4,6 +4,9 @@ class Cube(object):
     def forward(self, *input):
         pass
 
+    def train(self, *input):
+        pass
+
     def save(self, *input):
         pass
 

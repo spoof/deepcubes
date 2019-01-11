@@ -7,10 +7,6 @@ import os
 class NetworkEmbedder(Cube):
     """Network embedder"""
 
-    def __init__(self, url, tag):
-        self.url = url
-        self.tag = tag
-
     def forward(self, tokens):
         params = {
             'tokens': tokens,
@@ -24,6 +20,10 @@ class NetworkEmbedder(Cube):
             return None
         else:
             return content['vector']
+
+    def train(self, url, tag):
+        self.url = url
+        self.tag = tag
 
     def save(self, name='network_embedder.cube', path='scripts/embedders'):
         os.makedirs(path, exist_ok=True)
@@ -41,5 +41,6 @@ class NetworkEmbedder(Cube):
             cube_params = json.loads(f.read())
         url = cube_params['url']
         tag = cube_params['tag']
-        network_embedder = cls(url, tag)
+        network_embedder = cls()
+        network_embedder.train(url, tag)
         return network_embedder

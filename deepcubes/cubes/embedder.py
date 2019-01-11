@@ -8,10 +8,6 @@ import os
 class Embedder(Cube):
     """Word embedder"""
 
-    def __init__(self, path):
-        self.path = path
-        self.model = KeyedVectors.load(path, mmap='r')
-
     def forward(self, tokens):
         """Calculate vector for sentence as mean vector of all its words"""
 
@@ -28,6 +24,10 @@ class Embedder(Cube):
 
         return vector
 
+    def train(self, path):
+        self.path = path
+        self.model = KeyedVectors.load(path, mmap='r')
+
     def save(self, name='embedder.cube', path='scripts/embedders'):
         os.makedirs(path, exist_ok=True)
         cube_params = {
@@ -42,5 +42,6 @@ class Embedder(Cube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
         path = cube_params['path']
-        embedder = cls(path)
+        embedder = cls()
+        embedder.train(path)
         return embedder

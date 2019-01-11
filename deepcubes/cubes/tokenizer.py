@@ -8,14 +8,12 @@ import os
 class Tokenizer(Cube):
     """Word tokenizer"""
 
-    def __init__(self, mode=None):
+    def __init__(self):
         self.mode_dict = {
             'token': self._get_tokenize_words,
             'lem': self._get_lemmitize_words,
             None: self._get_tokenize_words,
         }
-        self.mode = mode if mode in self.mode_dict else None
-
         self.stemmer = Mystem()
         self.exclude = set(string.punctuation)
 
@@ -58,6 +56,9 @@ class Tokenizer(Cube):
         tokens = tokenizer(clean_text)
         return tokens
 
+    def train(self, mode=None):
+        self.mode = mode if mode in self.mode_dict else None
+
     def save(self, name='token.cube', path='scripts/tokenizers'):
         os.makedirs(path, exist_ok=True)
         cube_params = {
@@ -72,5 +73,6 @@ class Tokenizer(Cube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
         mode = cube_params['mode']
-        tokenizer = cls(mode)
+        tokenizer = cls()
+        tokenizer.train(mode)
         return tokenizer

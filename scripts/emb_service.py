@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 print("Load embedders...")
 emb_dict = {
-    'ru': Embedder(os.environ['INTENT_CLASSIFIER_MODEL']),
-    'en': Embedder(os.environ['INTENT_CLASSIFIER_ENG_MODEL'])
+    'ru': Embedder().train(os.environ['INTENT_CLASSIFIER_MODEL']),
+    'en': Embedder().train(os.environ['INTENT_CLASSIFIER_ENG_MODEL'])
 }
 
 
