@@ -6,16 +6,17 @@ class TestVeraLiveDialog(unittest.TestCase):
 
     def test_patterns(self):
         vera = VeraLiveDialog()
-        vera.train([
-            {
-                "label": "hello",
-                "patterns": ["привет", ".*привет.*"]
-            },
-            {
-                "label": "bye-bye",
-                "patterns": ["пока", "пока-пока.*"]
-            }
-        ])
+        vera.train({
+            "labels_settings": [
+                {
+                    "label": "hello",
+                    "patterns": ["привет", ".*привет.*"]
+                },
+                {
+                    "label": "bye-bye",
+                    "patterns": ["пока", "пока-пока.*"]
+                }]
+        })
 
         self.assertEqual(
             vera("привет"),
