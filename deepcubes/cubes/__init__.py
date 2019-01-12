@@ -7,4 +7,5 @@ from .edit_distance_matcher import EditDistanceMatcher
 from .pattern_matcher import PatternMatcher
 
 __all__ = ["Cube", "Tokenizer", "Embedder", "NetworkEmbedder",
-           "LogRegClassifier", "EditDistanceMatcher", "PatternMatcher"]
+           "LogRegClassifier", "EditDistanceMatcher", "PatternMatcher",
+           "MultiCube"]

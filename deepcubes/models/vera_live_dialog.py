@@ -7,15 +7,15 @@ class VeraGeneric(Cube):
     pass
 
 
-class VeraGenericYes(Cube):
+class VeraGenericYes(VeraGeneric):
     pass
 
 
-class VeraGenericNo(Cube):
+class VeraGenericNo(VeraGeneric):
     pass
 
 
-class VeraGenericRepeat(Cube):
+class VeraGenericRepeat(VeraGeneric):
     pass
 
 
@@ -28,7 +28,10 @@ class VeraLiveDialog(Model):
         self.intent_classifier = LogRegClassifier()
 
     def _construct_generics(self):
-        pass
+        self.generics = {
+            "yes": VeraGenericYes(),
+            "no": VeraGenericNo()
+        }
 
     def train(self, config):
         """Config dictionary

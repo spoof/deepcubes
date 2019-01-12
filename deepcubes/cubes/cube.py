@@ -15,3 +15,13 @@ class Cube(object):
 
     def __call__(self, *input):
         return self.predict(*input)
+
+
+class PredictorCube(Cube):
+    """Cube that return labels and probas"""
+    pass
+
+
+class MaxPredictorCube(PredictorCube):
+    """Cube that apply serveral cubes for label and return aggregated proba"""
+    pass
