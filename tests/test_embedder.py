@@ -62,5 +62,5 @@ class TestEmbedder(unittest.TestCase):
         name = 'embedder.cube'
         self.embedder.save(name=name, path=self.data_dir)
         new_embedder = Embedder.load(path=os.path.join(self.data_dir, name))
-        self.assertEqual(self.embedder.path, new_embedder.path)
+        self.assertEqual(self.embedder.emb_path, new_embedder.emb_path)
         os.remove(os.path.join(self.data_dir, name))

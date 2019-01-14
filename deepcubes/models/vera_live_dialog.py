@@ -1,3 +1,6 @@
+import json
+import os
+
 from deepcubes.cubes import TrainableCube, PredictorCube
 from deepcubes.cubes import PatternMatcher, LogRegClassifier, NetworkEmbedder
 from deepcubes.cubes import Tokenizer, Max, Pipe, CubeLabel
@@ -83,7 +86,9 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
     def train(self, config):
         """Config dictionary
 
+        "mode": 'lem' or 'token'
         "lang": 'rus' or 'eng'
+        "emb_url": url for NetworkEmbedder
         "labels_settings":
             [
                 {
@@ -96,6 +101,8 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
             ]
 
         """
+
+        self.config = config
 
         pattern_matcher_labels, pattern_matcher_patterns = [], []
         intent_labels, intent_phrases = [], []
@@ -127,8 +134,49 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
                                      config["lang"])
 
     def forward(self, query, labels=[]):
-
         max = Max([self.intent_classifier, self.pattern_matcher]
                   + list(self.generics.values()))
 
         return max(query)
+
+    def save(self, name='vera_live_dialog.cube', path='scripts/models'):
+        new_model_id = self._get_new_model_id(path)
+        model_path = os.path.join(path, str(new_model_id))
+        os.makedirs(model_path, exist_ok=True)
+        cube_params = {
+            'cube': self.__class__.__name__,
+            'config': self.config,
+            'tokenizer': self.tokenizer.save(path=model_path),
+            'embedder': self.embedder.save(path=model_path),
+            'intent_classifier': self.intent_classifier.save(path=model_path),
+            # TODO Add pattern_matcher saving
+        }
+
+        cube_path = os.path.join(path, name)
+        with open(cube_path, 'w') as out:
+            out.write(json.dumps(cube_params))
+
+        return cube_path
+
+    def _get_new_model_id(self, path):
+        model_ids = sorted([model_id for model_id in os.listdir(path)])
+        new_model_id = model_ids[-1] + 1 if len(model_ids) else 0
+        return new_model_id
+
+    @classmethod
+    def load(cls, path):
+        with open(path, 'r') as f:
+            cube_params = json.loads(f.read())
+
+        model = cls()
+        model.config = cube_params['config']
+        if cube_params['tokenizer']:
+            model.tokenizer = Tokenizer.load(cube_params['tokenizer'])
+        if cube_params['embedder']:
+            model.embedder = NetworkEmbedder.load(cube_params['embedder'])
+        if cube_params['intent_classifier']:
+            model.intent_classifier = LogRegClassifier.load(
+                cube_params['intent_classifier']
+            )
+        # TODO Add pattern_matcher loading
+        return model

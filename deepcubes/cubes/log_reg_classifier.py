@@ -38,7 +38,8 @@ class LogRegClassifier(PredictorCube, TrainableCube):
         self, name='logistic_regression.cube', path='scripts/classifiers'
     ):
         os.makedirs(path, exist_ok=True)
-        with open(os.path.join(path, name), "wb") as handle:
+        cube_path = os.path.join(path, name)
+        with open(cube_path, "wb") as handle:
             pickle.dump(
                 {
                     'cube': self.__class__.__name__,
@@ -47,6 +48,7 @@ class LogRegClassifier(PredictorCube, TrainableCube):
                 protocol=pickle.HIGHEST_PROTOCOL,
                 file=handle
             )
+        return cube_path
 
     @classmethod
     def load(cls, path):

@@ -8,8 +8,12 @@ import os
 class Embedder(TrainableCube):
     """Word embedder"""
 
+    def __init__(self):
+        self.emb_path = None
+        self.model = None
+
     def train(self, path):
-        self.path = path
+        self.emb_path = path
         self.model = KeyedVectors.load(path, mmap='r')
 
     def forward(self, tokens):
@@ -32,11 +36,12 @@ class Embedder(TrainableCube):
         os.makedirs(path, exist_ok=True)
         cube_params = {
             'cube': self.__class__.__name__,
-            'path': self.path
+            'path': self.emb_path
         }
-
-        with open(os.path.join(path, name), 'w') as out:
+        cube_path = os.path.join(path, name)
+        with open(cube_path, 'w') as out:
             out.write(json.dumps(cube_params))
+        return cube_path
 
     @classmethod
     def load(cls, path):
@@ -45,6 +50,6 @@ class Embedder(TrainableCube):
 
         path = cube_params['path']
         embedder = cls()
-        embedder.train(path)
-
+        if path:
+            embedder.train(path)
         return embedder

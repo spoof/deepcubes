@@ -71,9 +71,10 @@ class Tokenizer(TrainableCube):
             'cube': self.__class__.__name__,
             'mode': self.mode
         }
-
-        with open(os.path.join(path, name), 'w') as out:
+        cube_path = os.path.join(path, name)
+        with open(cube_path, 'w') as out:
             out.write(json.dumps(cube_params))
+        return cube_path
 
     @classmethod
     def load(cls, path):

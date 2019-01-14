@@ -7,24 +7,31 @@ app = Flask(__name__)
 
 print("Load embedders...")
 emb_dict = {
-    'ru': Embedder(),
-    'en': Embedder(),
+    'rus': Embedder(),
+    'eng': Embedder(),
+    'test': Embedder(),
 }
-emb_dict['ru'].train(os.environ['INTENT_CLASSIFIER_MODEL']),
-emb_dict['en'].train(os.environ['INTENT_CLASSIFIER_ENG_MODEL']),
+emb_dict['rus'].train(os.environ['INTENT_CLASSIFIER_MODEL']),
+emb_dict['eng'].train(os.environ['INTENT_CLASSIFIER_ENG_MODEL']),
+emb_dict['test'].train('tests/data/test_embeds.kv'),
+
 
 @app.route("/get_vector", methods=["GET"])
 def get_vector():
     if (
         request.method != "GET" or
-        "tokens" not in request.args or
+        "tokens" not in request.args
+    ):
+        tokens = list()
+    else:
+        tokens = request.args.getlist("tokens")
+    if (
         "tag" not in request.args
     ):
         return jsonify({
             "message": "Please sent GET query with `tokens` and `tag` keys",
         })
 
-    tokens = request.args.getlist("tokens")
     tag = request.args.get("tag")
 
     if tag not in emb_dict:
