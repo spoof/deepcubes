@@ -26,7 +26,7 @@ class LogRegClassifier(Cube):
             order = np.argsort(probas)[::-1]
 
             return [
-                (label, probas[label]) for label in order
+                (self.clf.classes_[label], probas[label]) for label in order
             ]
 
         except NotFittedError as e:

@@ -7,10 +7,11 @@ app = Flask(__name__)
 
 print("Load embedders...")
 emb_dict = {
-    'ru': Embedder().train(os.environ['INTENT_CLASSIFIER_MODEL']),
-    'en': Embedder().train(os.environ['INTENT_CLASSIFIER_ENG_MODEL'])
+    'ru': Embedder(),
+    'en': Embedder(),
 }
-
+emb_dict['ru'].train(os.environ['INTENT_CLASSIFIER_MODEL']),
+emb_dict['en'].train(os.environ['INTENT_CLASSIFIER_ENG_MODEL']),
 
 @app.route("/get_vector", methods=["GET"])
 def get_vector():
