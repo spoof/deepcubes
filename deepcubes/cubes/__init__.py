@@ -1,4 +1,5 @@
 from .cube import Cube, CubeLabel, PredictorCube, TrainableCube
+from .aggregators import Max, Pipe
 from .tokenizer import Tokenizer
 from .embedder import Embedder
 from .network_embedder import NetworkEmbedder
@@ -8,4 +9,4 @@ from .pattern_matcher import PatternMatcher
 
 __all__ = ["Cube", "CubeLabel", "PredictorCube", "TrainableCube",
            "Tokenizer", "Embedder", "NetworkEmbedder", "LogRegClassifier",
-           "EditDistanceMatcher", "PatternMatcher"]
+           "EditDistanceMatcher", "PatternMatcher", "Max", "Pipe"]

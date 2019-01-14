@@ -1,4 +1,4 @@
-from deepcubes.cubes import Cube, TrainableCube, PredictorCube
+from deepcubes.cubes import TrainableCube, PredictorCube
 from deepcubes.cubes import PatternMatcher, LogRegClassifier, NetworkEmbedder
 
 
