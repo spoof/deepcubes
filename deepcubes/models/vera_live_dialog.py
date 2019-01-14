@@ -2,7 +2,7 @@ from deepcubes.cubes import Cube, TrainableCube, PredictorCube
 from deepcubes.cubes import PatternMatcher, LogRegClassifier, NetworkEmbedder
 
 
-class VeraGeneric(Cube):
+class VeraGeneric(PredictorCube):
     pass
 
 
