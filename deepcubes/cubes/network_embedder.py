@@ -37,8 +37,11 @@ class NetworkEmbedder(TrainableCube):
             'tag': self.tag,
         }
 
-        with open(os.path.join(path, name), 'w') as out:
+        cube_path = os.path.join(path, name)
+        with open(cube_path, 'w') as out:
             out.write(json.dumps(cube_params))
+
+        return cube_path
 
     @classmethod
     def load(cls, path):
@@ -48,7 +51,7 @@ class NetworkEmbedder(TrainableCube):
         url = cube_params['url']
         tag = cube_params['tag']
 
-        network_embedder = cls()
-        network_embedder.train(url, tag)
+        network_embedder = cls(url)
+        network_embedder.train(tag)
 
         return network_embedder

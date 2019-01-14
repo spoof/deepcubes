@@ -1,14 +1,17 @@
 import unittest
+import os
+import shutil
+
 from deepcubes.models import VeraLiveDialog
 
 
 class TestVeraLiveDialog(unittest.TestCase):
 
-    def test_vera_dialog(self):
+    def setUp(self):
         # TODO: get path from environment
-        vera = VeraLiveDialog("http://51.144.105.1:3349/get_vector")
-
-        vera.train({
+        self.emb_path = 'http://51.144.105.1:3349/get_vector'
+        self.data_dir = 'tests/data'
+        self.config = {
             "lang": "test",
             "labels_settings": [
                 {
@@ -21,7 +24,12 @@ class TestVeraLiveDialog(unittest.TestCase):
                     "patterns": ["пока", "пока-пока.*"],
                     "intent_phrases": ["пока", "прощай"]
                 }]
-        })
+        }
+
+    def test_vera_dialog(self):
+        vera = VeraLiveDialog(self.emb_path)
+
+        vera.train(self.config)
 
         # TODO: near equal checking
         self.assertEqual(
@@ -44,3 +52,13 @@ class TestVeraLiveDialog(unittest.TestCase):
             vera("пока-пока привет"),
             [("hello", 1), ("bye-bye", 1)]
         )
+
+    def test_live_dialog_model_loading(self):
+        vera = VeraLiveDialog(self.emb_path)
+        vera.train(self.config)
+        model_id = 1
+        name = 'live_dialog.cube'
+        new_path = vera.save(model_id=model_id, name=name, path=self.data_dir)
+        new_vera = VeraLiveDialog.load(path=new_path)
+        self.assertEqual(vera.config, new_vera.config)
+        shutil.rmtree(os.path.join(self.data_dir, str(model_id)))
