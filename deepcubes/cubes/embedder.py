@@ -1,18 +1,18 @@
-from .cube import Cube
+from .cube import TrainableCube
 from gensim.models import KeyedVectors
 import numpy as np
 import json
 import os
 
 
-class Embedder(Cube):
+class Embedder(TrainableCube):
     """Word embedder"""
 
     def train(self, path):
         self.path = path
         self.model = KeyedVectors.load(path, mmap='r')
 
-    def predict(self, tokens):
+    def forward(self, tokens):
         """Calculate vector for sentence as mean vector of all its words"""
 
         vector = np.zeros(self.model.vector_size)

@@ -1,17 +1,17 @@
-from .cube import Cube
+from .cube import TrainableCube
 import requests
 import json
 import os
 
 
-class NetworkEmbedder(Cube):
+class NetworkEmbedder(TrainableCube):
     """Network embedder"""
 
     def train(self, url, tag):
         self.url = url
         self.tag = tag
 
-    def predict(self, tokens):
+    def forward(self, tokens):
         params = {
             'tokens': tokens,
             'tag': self.tag,

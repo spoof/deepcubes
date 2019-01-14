@@ -1,4 +1,4 @@
-from .cube import Cube
+from .cube import CubeLabel, PredictorCube, TrainableCube
 from sklearn.linear_model import LogisticRegression
 from sklearn.exceptions import NotFittedError
 
@@ -7,7 +7,7 @@ import pickle
 import os
 
 
-class LogRegClassifier(Cube):
+class LogRegClassifier(PredictorCube, TrainableCube):
     """Classify"""
 
     def __init__(self, solver='liblinear', multi_class='ovr'):
@@ -20,13 +20,14 @@ class LogRegClassifier(Cube):
         """Train classifier at question-answer pairs"""
         self.clf.fit(X, Y)
 
-    def predict(self, vector):
+    def forward(self, vector):
         try:
             probas = self.clf.predict_proba([vector])[0]
             order = np.argsort(probas)[::-1]
 
             return [
-                (self.clf.classes_[label], probas[label]) for label in order
+                CubeLabel(self.clf.classes_[label], probas[label])
+                for label in order
             ]
 
         except NotFittedError as e:
@@ -54,4 +55,5 @@ class LogRegClassifier(Cube):
 
         classifier = cls()
         classifier.clf = data['clf']
+
         return classifier

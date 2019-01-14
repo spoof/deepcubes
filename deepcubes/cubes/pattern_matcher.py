@@ -1,8 +1,8 @@
-from deepcubes.cubes import Cube
+from deepcubes.cubes import TrainableCube, PredictorCube, CubeLabel
 import re
 
 
-class PatternMatcher(Cube):
+class PatternMatcher(TrainableCube, PredictorCube):
     """Matcher based on regexps"""
 
     def __init__(self):
@@ -13,7 +13,7 @@ class PatternMatcher(Cube):
         for label, patterns in zip(labels, labels_patterns):
             self.data.append((label, patterns))
 
-    def predict(self, query):
+    def forward(self, query):
         labels, probas = [], []
         for label, patterns in self.data:
 
@@ -26,4 +26,5 @@ class PatternMatcher(Cube):
             labels.append(label)
             probas.append(proba)
 
-        return labels, probas
+        return [CubeLabel(label, proba)
+                for label, proba in zip(labels, probas)]

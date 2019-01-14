@@ -17,25 +17,25 @@ class TestPatternMatcher(unittest.TestCase):
 
         self.assertEqual(
             matcher("привет"),
-            (["first", "third", "second"], [1, 0, 0])
+            [("first", 1), ("third", 0), ("second", 0)]
         )
 
         self.assertEqual(
             matcher("как ты, привет"),
-            (["first", "third", "second"], [1, 0, 0])
+            [("first", 1), ("third", 0), ("second", 0)]
         )
 
         self.assertEqual(
             matcher("как ты, превет"),
-            (["first", "third", "second"], [0, 0, 0])
+            [("first", 0), ("third", 0), ("second", 0)]
         )
 
         self.assertEqual(
             matcher("как ты, пока и привет"),
-            (["first", "third", "second"], [1, 1, 0])
+            [("first", 1), ("third", 1), ("second", 0)]
         )
 
         self.assertEqual(
             matcher("ок"),
-            (["first", "third", "second"], [0, 0, 1])
+            [("first", 0), ("third", 0), ("second", 1)]
         )

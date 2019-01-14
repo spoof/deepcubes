@@ -20,20 +20,20 @@ class TestVeraLiveDialog(unittest.TestCase):
 
         self.assertEqual(
             vera("привет"),
-            (["hello", "bye-bye"], [1, 0])
+            [("hello", 1), ("bye-bye", 0)]
         )
 
         self.assertEqual(
             vera("приветик"),
-            (["hello", "bye-bye"], [1, 0])
+            [("hello", 1), ("bye-bye", 0)]
         )
 
         self.assertEqual(
             vera("прив пока-пока"),
-            (["hello", "bye-bye"], [0, 0])
+            [("hello", 0), ("bye-bye", 0)]
         )
 
         self.assertEqual(
             vera("пока-пока привет"),
-            (["hello", "bye-bye"], [1, 1])
+            [("hello", 1), ("bye-bye", 1)]
         )

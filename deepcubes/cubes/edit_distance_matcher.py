@@ -1,8 +1,8 @@
-from deepcubes.cubes import Cube
+from deepcubes.cubes import TrainableCube, PredictorCube, CubeLabel
 import editdistance as ed
 
 
-class EditDistanceMatcher(Cube):
+class EditDistanceMatcher(PredictorCube, TrainableCube):
     """Matcher based on edit distance"""
 
     def __init__(self):
@@ -16,7 +16,7 @@ class EditDistanceMatcher(Cube):
 
         self.max_distance = max_distance
 
-    def predict(self, query):
+    def forward(self, query):
         labels, probas = [], []
 
         for label, texts in self.data:
@@ -34,4 +34,5 @@ class EditDistanceMatcher(Cube):
             labels.append(label)
             probas.append(int(nearest_dist is not None))
 
-        return labels, probas
+        return [CubeLabel(label, proba)
+                for label, proba in zip(labels, probas)]

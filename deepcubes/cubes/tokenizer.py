@@ -1,11 +1,11 @@
-from .cube import Cube
+from .cube import TrainableCube
 from pymystem3 import Mystem
 import string
 import json
 import os
 
 
-class Tokenizer(Cube):
+class Tokenizer(TrainableCube):
     """Word tokenizer"""
 
     def __init__(self):
@@ -58,7 +58,7 @@ class Tokenizer(Cube):
     def train(self, mode=None):
         self.mode = mode if mode in self.mode_dict else None
 
-    def predict(self, text):
+    def forward(self, text):
         tokenizer = self.mode_dict[self.mode]
         clean_text = self._text_clean(text)
         tokens = tokenizer(clean_text)
