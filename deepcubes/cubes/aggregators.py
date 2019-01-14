@@ -8,7 +8,7 @@ class Pipe(Cube):
     def __init__(self, cubes):
         self.cubes = cubes
 
-    def forward(self, *input):
+    def forward(self, input):
         result = input
         for cube in self.cubes:
             result = cube(result)
@@ -22,11 +22,11 @@ class Max(PredictorCube):
     def __init__(self, predictor_cubes):
         self.cubes = predictor_cubes
 
-    def forward(self, *input):
+    def forward(self, input):
         max_label_proba = defaultdict(float)
 
         for cube in self.cubes:
-            for cube_label in cube(*input):
+            for cube_label in cube(input):
                 if cube_label.proba >= max_label_proba[cube_label.label]:
                     max_label_proba[cube_label.label] = cube_label.proba
 

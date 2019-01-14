@@ -7,8 +7,10 @@ import os
 class NetworkEmbedder(TrainableCube):
     """Network embedder"""
 
-    def train(self, url, tag):
+    def __init__(self, url):
         self.url = url
+
+    def train(self, tag):
         self.tag = tag
 
     def forward(self, tokens):
