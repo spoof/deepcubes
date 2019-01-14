@@ -13,7 +13,7 @@ class PatternMatcher(Cube):
         for label, patterns in zip(labels, labels_patterns):
             self.data.append((label, patterns))
 
-    def forward(self, query):
+    def predict(self, query):
         labels, probas = [], []
         for label, patterns in self.data:
 
