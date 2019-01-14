@@ -31,5 +31,5 @@ CubeLabel = namedtuple("CubeLabel", "label, proba")
 class PredictorCube(Cube):
     """Cube that return labels and probas"""
 
-    def predict(self, *input) -> List[CubeLabel]:
+    def forward(self, *input) -> List[CubeLabel]:
         raise NotImplementedError
