@@ -1,5 +1,4 @@
-from deepcubes.models import Model
-from deepcubes.cubes import Cube
+from deepcubes.cubes import Cube, TrainableCube, PredictorCube
 from deepcubes.cubes import PatternMatcher, LogRegClassifier, NetworkEmbedder
 
 
@@ -19,7 +18,7 @@ class VeraGenericRepeat(VeraGeneric):
     pass
 
 
-class VeraLiveDialog(Model):
+class VeraLiveDialog(TrainableCube, PredictorCube):
     """Live dialog model"""
 
     def __init__(self):
@@ -69,6 +68,6 @@ class VeraLiveDialog(Model):
         self.pattern_matcher.train(pattern_matcher_labels,
                                    pattern_matcher_patterns)
 
-    def predict(self, query, labels=[]):
+    def forward(self, query, labels=[]):
         pattern_matcher_results = self.pattern_matcher(query)
         return pattern_matcher_results

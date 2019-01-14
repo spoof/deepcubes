@@ -1,7 +1,7 @@
-from deepcubes.models import Model
+from deepcubes.cubes import TrainableCube, PredictorCube
 
 
-class ColaBot(Model):
+class ColaBot(TrainableCube, PredictorCube):
     """Coca-cola bot model"""
 
     pass
