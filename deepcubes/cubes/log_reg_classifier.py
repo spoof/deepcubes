@@ -1,4 +1,5 @@
 from .cube import CubeLabel, PredictorCube, TrainableCube
+
 from sklearn.linear_model import LogisticRegression
 from sklearn.exceptions import NotFittedError
 

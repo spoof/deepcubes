@@ -1,4 +1,5 @@
 from .cube import TrainableCube
+
 from pymystem3 import Mystem
 import string
 import json

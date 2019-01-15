@@ -1,4 +1,4 @@
-from deepcubes.cubes import TrainableCube, PredictorCube
+from ..cubes import TrainableCube, PredictorCube
 
 
 class ColaBot(TrainableCube, PredictorCube):

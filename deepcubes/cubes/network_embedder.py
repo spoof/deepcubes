@@ -1,4 +1,5 @@
 from .cube import TrainableCube
+
 import requests
 import json
 import os
