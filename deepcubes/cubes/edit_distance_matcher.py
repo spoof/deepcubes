@@ -25,17 +25,18 @@ class EditDistanceMatcher(PredictorCube, TrainableCube):
         """
 
         self.labels = labels
-        self.texts = texts
+        self.texts = [[text.lower() for text in txt] for txt in texts]
         self.max_distance = max_distance
 
     def forward(self, query):
         unique_labels = set()
         labels_probas = defaultdict(int)
+        prepared_query = query.lower()
 
         for labels, texts in zip(self.labels, self.texts):
             unique_labels.update(labels)
             for text in texts:
-                dist = ed.eval(query, text)
+                dist = ed.eval(prepared_query, text)
 
                 if dist <= self.max_distance:
                     for label in labels:

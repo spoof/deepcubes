@@ -22,16 +22,17 @@ class PatternMatcher(TrainableCube, PredictorCube):
         """
 
         self.labels = labels
-        self.patterns = patterns
+        self.patterns = [[p.lower() for p in ptrns] for ptrns in patterns]
 
     def forward(self, query):
         unique_labels = set()
         labels_probas = defaultdict(int)
+        prepared_query = query.strip().lower()
 
         for labels, patterns in zip(self.labels, self.patterns):
             unique_labels.update(labels)
             for pattern in patterns:
-                if re.match(pattern, query):
+                if re.match(pattern, prepared_query):
                     for label in labels:
                         labels_probas[label] = 1
 
