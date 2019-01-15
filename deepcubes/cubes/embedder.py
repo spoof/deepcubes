@@ -33,7 +33,8 @@ class Embedder(TrainableCube):
         return vector
 
     def save(self, path, name='embedder.cube'):
-        super(Embedder, self).save(path, name)
+        super().save(path, name)
+
         cube_params = {
             'cube': self.__class__.__name__,
             'path': self.emb_path

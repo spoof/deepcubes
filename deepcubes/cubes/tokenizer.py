@@ -45,9 +45,9 @@ class Tokenizer(TrainableCube):
 
     def _get_tokenize_words(self, text, letter_limit=2):
         """Delete words with fewer than `n` letters"""
-        words = [
-            word.lower() for word in text.split() if len(word) > letter_limit
-        ]
+        words = [word.lower() for word in text.split()
+                 if len(word) > letter_limit]
+
         return words
 
     def _text_clean(self, text):
@@ -67,7 +67,8 @@ class Tokenizer(TrainableCube):
         return tokens
 
     def save(self, path, name='token.cube'):
-        super(Tokenizer, self).save(path, name)
+        super().save(path, name)
+
         cube_params = {
             'cube': self.__class__.__name__,
             'mode': self.mode
@@ -85,8 +86,7 @@ class Tokenizer(TrainableCube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        mode = cube_params['mode']
         tokenizer = cls()
-        tokenizer.train(mode)
+        tokenizer.train(cube_params["mode"])
 
         return tokenizer

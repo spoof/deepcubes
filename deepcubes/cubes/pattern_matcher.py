@@ -2,6 +2,8 @@ from .cube import TrainableCube, PredictorCube, CubeLabel
 from ..utils.functions import sorted_labels
 
 import re
+import os
+import json
 from collections import defaultdict
 
 
@@ -9,7 +11,8 @@ class PatternMatcher(TrainableCube, PredictorCube):
     """Matcher based on regexps"""
 
     def __init__(self):
-        self.data = []
+        self.labels = []
+        self.patterns = []
 
     def train(self, labels, patterns):
         """Arguments:
@@ -37,8 +40,28 @@ class PatternMatcher(TrainableCube, PredictorCube):
         return sorted_labels([CubeLabel(label, labels_probas[label])
                               for label in unique_labels])
 
-    def save(self, path, name="pattern_matcher"):
-        return None
+    def save(self, path, name="pattern_matcher.cube"):
+        super().save(path, name)
 
-    def load(self):
-        return None
+        cube_params = {
+            'cube': self.__class__.__name__,
+            'labels': self.labels,
+            'patterns': self.patterns,
+        }
+
+        cube_path = os.path.join(path, name)
+
+        with open(cube_path, 'w') as out:
+            out.write(json.dumps(cube_params))
+
+        return cube_path
+
+    @classmethod
+    def load(cls, path):
+        with open(path, 'r') as f:
+            cube_params = json.loads(f.read())
+
+        pattern_matcher = cls()
+        pattern_matcher.train(cube_params["labels"], cube_params["patterns"])
+
+        return pattern_matcher

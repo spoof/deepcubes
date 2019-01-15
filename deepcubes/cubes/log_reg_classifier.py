@@ -35,10 +35,9 @@ class LogRegClassifier(PredictorCube, TrainableCube):
             # TODO(dima): implement logic
             raise e
 
-    def save(
-        self, path, name='logistic_regression.cube'
-    ):
-        super(LogRegClassifier, self).save(path, name)
+    def save(self, path, name='logistic_regression.cube'):
+        super().save(path, name)
+
         cube_path = os.path.join(path, name)
         with open(cube_path, "wb") as handle:
             pickle.dump({

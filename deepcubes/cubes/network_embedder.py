@@ -32,7 +32,8 @@ class NetworkEmbedder(TrainableCube):
             return content['vector']
 
     def save(self, path, name='network_embedder.cube'):
-        super(NetworkEmbedder, self).save(path, name)
+        super().save(path, name)
+
         cube_params = {
             'cube': self.__class__.__name__,
             'url': self.emb_url,
