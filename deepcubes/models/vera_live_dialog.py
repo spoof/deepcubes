@@ -204,7 +204,7 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
 
         generics_params = {
             name: generic.save(
-                path=os.path.join(path, 'generics'),
+                path=os.path.join(path, 'generics/{}'.format(name)),
                 name='{}_generic.coub'.format(name)
             ) for name, generic in self.generics.items()
         }
@@ -212,6 +212,7 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         cube_params = {
             'cube': self.__class__.__name__,
             'config': self.config,
+            'pattern_matcher': self.pattern_matcher.save(path=path),
             'generics': generics_params,
             'embedder_url': self.embedder_url,
             'generic_data_path': self.generic_data_path,
@@ -235,6 +236,10 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
                     cube_params["generic_data_path"])
 
         model.config = cube_params['config']
+        model.pattern_matcher = PatternMatcher.load(
+            cube_params['pattern_matcher']
+        )
+
         model.generics = {
             name: Generic.load(
                 path

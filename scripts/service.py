@@ -3,10 +3,23 @@ import os
 import json
 import logging
 import argparse
+import configparser
 
 from deepcubes.models import VeraLiveDialog
 
-MODEL_STORAGE = 'scripts/models/'
+config_parser = configparser.RawConfigParser()
+config_file_path = os.environ['LIVE_DIALOG_CONF']
+config_parser.read(config_file_path)
+
+MODEL_STORAGE = json.loads(
+    config_parser.get('live-dialog-service', 'MODEL_STORAGE')
+)
+
+EMB_PATH = json.loads(config_parser.get('live-dialog-service', 'EMB_PATH'))
+
+GENETIC_DATA_PATH = json.loads(
+    config_parser.get('live-dialog-service', 'GENETIC_DATA_PATH')
+)
 
 models = dict()
 
@@ -24,7 +37,7 @@ app = Flask(__name__)
 def load_model(model_id):
         print("Load model {} ...".format(model_id))
         model_path = os.path.join(
-            MODEL_STORAGE, "{}/live_dialog.cube".format(model_id)
+            MODEL_STORAGE, "{}/vera_live_dialog.cube".format(model_id)
         )
         if not os.path.isfile(model_path):
             return False
@@ -34,84 +47,105 @@ def load_model(model_id):
         return True
 
 
+def get_new_model_id(path):
+    models_ids = [int(file_name) for file_name in os.listdir(path) if not (
+        os.path.isfile(os.path.join(path, file_name))
+    )]
+    sorted_ids = sorted(models_ids)
+    new_model_id = sorted_ids[-1] + 1 if len(sorted_ids) else 0
+
+    return new_model_id
+
+
 @app.route("/predict", methods=["GET"])
 def predict():
-    if (
-        request.method != "GET" or
-        "id" not in request.args or
-        "query" not in request.args
-    ):
-        return jsonify({
-            "message": "Please sent GET query with `id` and `query` keys",
-        })
-
-    model_id = int(request.args.get("id"))
-
-    if model_id in models:
-        model = models[model_id]
-    else:
-        loading = load_model(model_id)
-        if loading:
-            model = models[model_id]
-        else:
+    try:
+        if (
+            request.method != "GET" or
+            "model_id" not in request.args or
+            "query" not in request.args
+        ):
             return jsonify({
-                "message": "Model with id {} not found".format(model_id),
+                "message": "Please sent GET query with `model_id` and `query` keys",
             })
 
-    query = request.args.get("query")
-    if 'labels' in request.args:
-        labels = request.args.get("labels")
-    else:
-        labels = list()
-    logging.info('predicting intent for question: {}'.format(query))
+        model_id = int(request.args.get("model_id"))
 
-    model_answer = model.predict(query, labels)
+        if model_id in models:
+            model = models[model_id]
+        else:
+            loading = load_model(model_id)
+            if loading:
+                model = models[model_id]
+            else:
+                return jsonify({
+                    "message": "Model with model_id {} not found".format(model_id),
+                })
 
-    output = []
-    for label, probability in model_answer:
-        output.append({
-            "label": label,
-            "probability": probability,
-        })
+        query = request.args.get("query")
+        if 'labels' in request.args:
+            labels = request.args.get("labels")
+        else:
+            labels = list()
+        logging.info('predicting intent for question: {}'.format(query))
 
-        logging.info('predicted label: {}'.format(label))
-        logging.info('probability: {}'.format(probability))
+        model_answer = model(query, labels)
 
-    return jsonify(output)
+        output = []
+        for label, probability in model_answer:
+            output.append({
+                "label": label,
+                "probability": probability,
+            })
+
+            logging.info('predicted label: {}'.format(label))
+            logging.info('probability: {}'.format(probability))
+
+        return jsonify(output)
+    except Exception as e:
+        print(e)
 
 
 @app.route("/train", methods=["GET", "POST"])
 def train():
-    if (
-        request.method not in ["GET", "POST"] or
-        ("config" not in request.args and
-            "config" not in request.form)
-    ):
+    try:
+        if (
+            request.method not in ["GET", "POST"] or
+            ("config" not in request.args and
+                "config" not in request.form)
+        ):
+            return jsonify({
+                "message": ("Please sent GET or POST query with `config` key"),
+            })
+
+        live_dialog_model = VeraLiveDialog(EMB_PATH, GENETIC_DATA_PATH)
+
+        # parse data from json
+        if 'config' in request.args:
+            config = json.loads(request.args["config"])
+        elif 'config' in request.form:
+            config = json.loads(request.form["config"])
+        else:
+            return jsonify({
+                "message": "Please send correct json object"
+            })
+
+        live_dialog_model.train(config)
+
+        new_model_id = get_new_model_id(MODEL_STORAGE)
+        models[new_model_id] = live_dialog_model
+
+        model_path = os.path.join(MODEL_STORAGE, str(new_model_id))
+        live_dialog_model.save(model_path)
+
+        logging.info('saved model with model_id {}'.format(new_model_id))
+
         return jsonify({
-            "message": ("Please sent GET or POST query with `config` key"),
+            "message": 'Created model with model_id {}'.format(new_model_id),
+            "model_id": new_model_id,
         })
-
-    live_dialog_model = VeraLiveDialog()
-
-    # parse data from json
-    if 'config' in request.args:
-        config = json.loads(request.args["config"])
-    elif 'config' in request.form:
-        config = json.loads(request.form["config"])
-    else:
-        return jsonify({
-            "message": "Please send correct json object"
-        })
-
-    live_dialog_model.train(config)
-
-    new_model_id = live_dialog_model.save(MODEL_STORAGE)
-    logging.info('saved model with id {}'.format(new_model_id))
-
-    return jsonify({
-        "message": 'Created model with id {}'.format(new_model_id),
-        "id": new_model_id,
-    })
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
