@@ -1,5 +1,6 @@
 from deepcubes.cubes import TrainableCube, PredictorCube, CubeLabel
 import re
+from collections import defaultdict
 
 
 class PatternMatcher(TrainableCube, PredictorCube):
@@ -8,22 +9,29 @@ class PatternMatcher(TrainableCube, PredictorCube):
     def __init__(self):
         self.data = []
 
-    def train(self, labels, labels_patterns):
-        self.data = []
-        for label, patterns in zip(labels, labels_patterns):
-            self.data.append((label, patterns))
+    def train(self, labels, patterns):
+        """Arguments:
+
+            labels:  [[..], [..]]  nested lists of patterns
+            patterns: [[..], [..]]  nested list of corresponded labels
+        """
+
+        self.labels = labels
+        self.patterns = patterns
 
     def forward(self, query):
-        labels, probas = [], []
-        for label, patterns in self.data:
-            proba = 0
+        unique_labels = set()
+        labels_probas = defaultdict(int)
+
+        for labels, patterns in zip(self.labels, self.patterns):
+            unique_labels.update(labels)
             for pattern in patterns:
                 if re.match(pattern, query):
-                    proba = 1
+                    for label in labels:
+                        labels_probas[label] = 1
+
                     break
 
-            labels.append(label)
-            probas.append(proba)
-
-        return [CubeLabel(label, proba)
-                for label, proba in zip(labels, probas)]
+        return sorted([CubeLabel(label, labels_probas[label])
+                       for label in unique_labels],
+                      key=lambda elem: (-elem[1], elem[0]))

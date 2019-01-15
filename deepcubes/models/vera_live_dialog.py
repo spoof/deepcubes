@@ -4,6 +4,7 @@ import os
 from deepcubes.cubes import TrainableCube, PredictorCube
 from deepcubes.cubes import PatternMatcher, LogRegClassifier, NetworkEmbedder
 from deepcubes.cubes import Tokenizer, Max, Pipe, CubeLabel
+from deepcubes.cubes import EditDistanceMatcher
 
 from collections import defaultdict
 
@@ -11,21 +12,39 @@ from collections import defaultdict
 class Generic(TrainableCube, PredictorCube):
     """General algorithms pretrained for specfical tasks"""
 
-    def __init__(self):
+    MAX_EDIT_DIST = 1  # may be need to control from user?
+
+    def __init__(self, tag, data_path):
+        self.tag = tag
+        self.data_path = data_path
         self.labels = []
+        self.ed_matcher = EditDistanceMatcher()
 
     def train(self, labels):
         self.labels = labels
 
-    def forward(self, *input):
-        raise NotImplementedError
+        texts = []
+        with open(self.data_path, "r") as data_file:
+            for line in data_file:
+                text, tag = line.split("\t")
+                if tag == self.tag:
+                    texts.append(text)
+
+        self.ed_matcher.train([], [], self.MAX_EDIT_DIST)
+
+    def forward(self, text):
+        # TODO: not implemented
+        return [CubeLabel(label, 0) for label in self.labels]
 
     def save(self, path, name='generics.cube'):
         model_path = os.path.join(path, 'generics')
         os.makedirs(model_path, exist_ok=True)
+
         cube_params = {
             'cube': self.__class__.__name__,
             'labels': self.labels,
+            'tag': self.tag,
+            'data_path': self.data_path,
         }
 
         cube_path = os.path.join(model_path, name)
@@ -39,34 +58,10 @@ class Generic(TrainableCube, PredictorCube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        model = cls()
+        model = cls(cube_params['tag'], cube_params['data_path'])
         model.labels = cube_params['labels']
 
         return model
-
-
-class GenericYes(Generic):
-    """General yes (agreement) algorithm"""
-
-    def forward(self, text):
-        # TODO: not implemented
-        return [CubeLabel(label, 0) for label in self.labels]
-
-
-class GenericNo(Generic):
-    """General no (negation) classifier"""
-
-    def forward(self, text):
-        # TODO: not implemented
-        return [CubeLabel(label, 0) for label in self.labels]
-
-
-class GenericRepeat(Generic):
-    """General repeat asking classifier"""
-
-    def forward(self, text):
-        # TODO: not implemented
-        return [CubeLabel(label, 0) for label in self.labels]
 
 
 class IntentClassifier(TrainableCube, PredictorCube):
@@ -134,9 +129,9 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
     def __init__(self, embedder_url):
         self.pattern_matcher = PatternMatcher()
         self.generics = {
-            "yes": GenericYes(),
-            "no": GenericNo(),
-            "repeat": GenericRepeat()
+            "yes": Generic("yes", None),
+            "no": Generic("no", None),
+            "repeat": Generic("repeat", None)
         }
         self.intent_classifier = IntentClassifier(embedder_url)
 
@@ -167,7 +162,7 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
             label = data["label"]
 
             if "patterns" in data and len(data["patterns"]):
-                pattern_matcher_labels.append(label)
+                pattern_matcher_labels.append([label])
                 pattern_matcher_patterns.append(data["patterns"])
 
             if "generics" in data and len(data["generics"]):

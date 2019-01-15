@@ -9,7 +9,7 @@ class TestAggregators(unittest.TestCase):
     def test_max(self):
         pattern_matcher = PatternMatcher()
         pattern_matcher.train(
-            ["first", "third", "second"],
+            [["first"], ["third"], ["second"]],
             [
                 ["привет", ".*привет.*"],
                 ["пока", ".*пока.*", "превед"],
@@ -19,7 +19,7 @@ class TestAggregators(unittest.TestCase):
 
         ed_matcher = EditDistanceMatcher()
         ed_matcher.train(
-            ["first", "third", "second"],
+            [["first"], ["third"], ["second"]],
             [
                 ["пока", "покасики"],
                 ["ок"],
@@ -32,12 +32,12 @@ class TestAggregators(unittest.TestCase):
 
         self.assertEqual(
             max_cube("привет"),
-            [("first", 1), ("third", 0), ("second", 1)]
+            [("first", 1), ("second", 1), ("third", 0)]
         )
 
         self.assertEqual(
             max_cube("превет"),
-            [("first", 0), ("third", 0), ("second", 1)]
+            [("second", 1), ("first", 0), ("third", 0)]
         )
 
         self.assertEqual(

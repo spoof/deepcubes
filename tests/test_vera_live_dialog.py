@@ -45,12 +45,12 @@ class TestVeraLiveDialog(unittest.TestCase):
 
         self.assertEqual(
             vera("прив пока-пока"),
-            [("hello", 0.5), ("bye-bye", 0.5)]
+            [("bye-bye", 0.5), ("hello", 0.5)]
         )
 
         self.assertEqual(
             vera("пока-пока привет"),
-            [("hello", 1), ("bye-bye", 1)]
+            [("bye-bye", 1), ("hello", 1)]
         )
 
     def test_live_dialog_model_loading(self):

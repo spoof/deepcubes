@@ -7,7 +7,7 @@ class TestPatternMatcher(unittest.TestCase):
     def test_matcher(self):
         matcher = PatternMatcher()
         matcher.train(
-            ["first", "third", "second"],
+            [["first"], ["third"], ["second"]],
             [
                 ["привет", ".*привет.*"],
                 ["пока", ".*пока.*", "превед"],
@@ -17,17 +17,17 @@ class TestPatternMatcher(unittest.TestCase):
 
         self.assertEqual(
             matcher("привет"),
-            [("first", 1), ("third", 0), ("second", 0)]
+            [("first", 1), ("second", 0), ("third", 0)]
         )
 
         self.assertEqual(
             matcher("как ты, привет"),
-            [("first", 1), ("third", 0), ("second", 0)]
+            [("first", 1), ("second", 0), ("third", 0)]
         )
 
         self.assertEqual(
             matcher("как ты, превет"),
-            [("first", 0), ("third", 0), ("second", 0)]
+            [("first", 0), ("second", 0), ("third", 0)]
         )
 
         self.assertEqual(
@@ -37,5 +37,5 @@ class TestPatternMatcher(unittest.TestCase):
 
         self.assertEqual(
             matcher("ок"),
-            [("first", 0), ("third", 0), ("second", 1)]
+            [("second", 1), ("first", 0), ("third", 0)]
         )

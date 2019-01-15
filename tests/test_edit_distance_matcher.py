@@ -7,7 +7,7 @@ class TestEditDistanceMatcher(unittest.TestCase):
     def test_matcher(self):
         matcher = EditDistanceMatcher()
         matcher.train(
-            ["first", "third", "second"],
+            [["first"], ["third"], ["second"]],
             [
                 ["привет", "превет"],
                 ["пока", "покасики", "превед"],
@@ -18,22 +18,22 @@ class TestEditDistanceMatcher(unittest.TestCase):
 
         self.assertEqual(
             matcher("привет"),
-            [("first", 1), ("third", 0), ("second", 0)]
+            [("first", 1), ("second", 0), ("third", 0)]
         )
 
         self.assertEqual(
             matcher("прувет"),
-            [("first", 1), ("third", 0), ("second", 0)]
+            [("first", 1), ("second", 0), ("third", 0)]
         )
 
         self.assertEqual(
             matcher("пруветик"),
-            [("first", 0), ("third", 0), ("second", 0)]
+            [("first", 0), ("second", 0), ("third", 0)]
         )
 
         self.assertEqual(
             matcher("пруветик"),
-            [("first", 0), ("third", 0), ("second", 0)]
+            [("first", 0), ("second", 0), ("third", 0)]
         )
 
         self.assertEqual(
@@ -43,5 +43,5 @@ class TestEditDistanceMatcher(unittest.TestCase):
 
         self.assertEqual(
             matcher("оке"),
-            [("first", 0), ("third", 0), ("second", 1)]
+            [("second", 1), ("first", 0), ("third", 0)]
         )

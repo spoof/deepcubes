@@ -1,5 +1,6 @@
 from deepcubes.cubes import TrainableCube, PredictorCube, CubeLabel
 import editdistance as ed
+from collections import defaultdict
 
 
 class EditDistanceMatcher(PredictorCube, TrainableCube):
@@ -9,30 +10,33 @@ class EditDistanceMatcher(PredictorCube, TrainableCube):
         self.data = []
         self.max_distance = -1
 
-    def train(self, labels, labels_texts, max_distance):
-        self.data = []
-        for label, texts in zip(labels, labels_texts):
-            self.data.append((label, texts))
+    def train(self, labels, texts, max_distance):
+        """Arguments:
 
+            texts:  [[..], [..]]  nested lists of texts
+            labels: [[..], [..]]  nested list of corresponded labels
+            max_distance: maximal edit distance to assign label
+        """
+
+        self.labels = labels
+        self.texts = texts
         self.max_distance = max_distance
 
     def forward(self, query):
-        labels, probas = [], []
+        unique_labels = set()
+        labels_probas = defaultdict(int)
 
-        for label, texts in self.data:
-
-            nearest_dist = None
+        for labels, texts in zip(self.labels, self.texts):
+            unique_labels.update(labels)
             for text in texts:
                 dist = ed.eval(query, text)
 
-                if dist > self.max_distance:
-                    continue
+                if dist <= self.max_distance:
+                    for label in labels:
+                        labels_probas[label] = 1
 
-                if nearest_dist is None or dist < nearest_dist:
-                    nearest_dist = dist
+                    break
 
-            labels.append(label)
-            probas.append(int(nearest_dist is not None))
-
-        return [CubeLabel(label, proba)
-                for label, proba in zip(labels, probas)]
+        return sorted([CubeLabel(label, labels_probas[label])
+                       for label in unique_labels],
+                      key=lambda elem: (-elem[1], elem[0]))

@@ -30,5 +30,6 @@ class Max(PredictorCube):
                 if cube_label.proba >= max_label_proba[cube_label.label]:
                     max_label_proba[cube_label.label] = cube_label.proba
 
-        return [CubeLabel(label, proba)
-                for label, proba in max_label_proba.items()]
+        return sorted([CubeLabel(label, proba)
+                       for label, proba in max_label_proba.items()],
+                      key=lambda elem: (-elem[1], elem[0]))
