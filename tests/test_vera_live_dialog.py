@@ -31,7 +31,8 @@ class TestVeraLiveDialog(unittest.TestCase):
                 {
                     "label": "rep",
                     "generics": ["repeat"]
-                }]
+                }],
+            "not_understand_label": "not_understand"
         }
 
     def test_vera_dialog(self):
@@ -42,28 +43,33 @@ class TestVeraLiveDialog(unittest.TestCase):
         # TODO: near equal checking
         self.assertEqual(
             vera("привет"),
-            [("hello", 1), ("bye-bye", 0.5), ("rep", 0)]
+            [("hello", 1), ("not_understand", 0.6),
+             ("bye-bye", 0.5), ("rep", 0)]
         )
 
         # TODO: near equal checking
         self.assertEqual(
             vera("приветик"),
-            [("hello", 1), ("bye-bye", 0.5), ("rep", 0)]
+            [("hello", 1), ("not_understand", 0.6),
+             ("bye-bye", 0.5), ("rep", 0)]
         )
 
         self.assertEqual(
             vera("прив пока-пока"),
-            [("bye-bye", 0.5), ("hello", 0.5), ("rep", 0)]
+            [("not_understand", 0.6), ("bye-bye", 0.5),
+             ("hello", 0.5), ("rep", 0)]
         )
 
         self.assertEqual(
             vera("пока-пока привет"),
-            [("bye-bye", 1), ("hello", 1), ("rep", 0)]
+            [("bye-bye", 1), ("hello", 1),
+             ("not_understand", 0.6), ("rep", 0)]
         )
 
         self.assertEqual(
             vera("повтори"),
-            [("rep", 1), ("bye-bye", 0.5), ("hello", 0.5)]
+            [("rep", 1), ("not_understand", 0.6),
+             ("bye-bye", 0.5), ("hello", 0.5)]
         )
 
     def test_live_dialog_model_loading(self):

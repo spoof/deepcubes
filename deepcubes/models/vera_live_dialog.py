@@ -3,8 +3,9 @@ import os
 
 from ..cubes import TrainableCube, PredictorCube
 from ..cubes import PatternMatcher, LogRegClassifier, NetworkEmbedder
-from ..cubes import Tokenizer, Max, Pipe
+from ..cubes import Tokenizer, Max, Pipe, CubeLabel
 from ..cubes import EditDistanceMatcher
+from ..utils.functions import sorted_labels
 
 from collections import defaultdict
 
@@ -36,7 +37,8 @@ class Generic(TrainableCube, PredictorCube):
         return self.ed_matcher(text)
 
     def save(self, path, name='generics.cube'):
-        super(Generic, self).save(path, name)
+        super().save(path, name)
+
         cube_params = {
             'cube': self.__class__.__name__,
             'labels': self.labels,
@@ -88,7 +90,8 @@ class IntentClassifier(TrainableCube, PredictorCube):
         return self.log_reg_classifier(self.vectorizer(query))
 
     def save(self, path, name='intent_classifier.cube'):
-        super(IntentClassifier, self).save(path, name)
+        super().save(path, name)
+
         cube_params = {
             'cube': self.__class__.__name__,
             'tokenizer': self.tokenizer.save(path=path),
@@ -121,6 +124,8 @@ class IntentClassifier(TrainableCube, PredictorCube):
 class VeraLiveDialog(TrainableCube, PredictorCube):
     """Live dialog model"""
 
+    NOT_UNDERSTAND_PROBA = 0.6  # TODO: recalc according models
+
     def __init__(self, embedder_url, generic_data_path):
         self.pattern_matcher = PatternMatcher()
 
@@ -143,13 +148,14 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         "labels_settings":
             [
                 {
-                    "label": label_name,
-                    "patterns": patterns for PatternMatcher
-                    "generics": generic names ('yes'/'no'/'repeat')
-                    "intent_phrases": list with intent phrases
+                    "label": (str) label_name,
+                    "patterns": [(str)] patterns for PatternMatcher
+                    "generics": [(str)] generic names ('yes'/'no'/'repeat')
+                    "intent_phrases": [(str)] list with intent phrases
                 },
                 ...
-            ]
+            ],
+        "not_understand_label" (str)
 
         """
 
@@ -189,10 +195,12 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         max = Max([self.intent_classifier, self.pattern_matcher]
                   + list(self.generics.values()))
 
-        return max(query)
+        return sorted_labels(max(query)
+                             + [CubeLabel(self.config["not_understand_label"],
+                                          self.NOT_UNDERSTAND_PROBA)])
 
     def save(self, path, name='vera_live_dialog.cube'):
-        super(VeraLiveDialog, self).save(path, name)
+        super().save(path, name)
 
         generics_params = {
             name: generic.save(
