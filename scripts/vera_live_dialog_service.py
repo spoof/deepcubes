@@ -65,15 +65,22 @@ def get_new_model_id(path):
 def predict():
     try:
         if (
-            request.method != "GET"
-            or "model_id" not in request.args
-            or "query" not in request.args
+            request.method not in ["GET", "POST"]
+            or ("model_id" not in request.args
+                and "model_id" not in request.form)
+            or ("query" not in request.args and "query" not in request.form)
         ):
             return jsonify({
                 "message": "Please sent GET query with `model_id` and `query` keys",
             })
 
-        model_id = int(request.args.get("model_id"))
+        # parse data from json
+        if 'model_id' in request.args:
+            model_id = int(request.args['model_id'])
+        elif 'model_id' in request.form:
+            model_id = int(request.form['model_id'])
+        else:
+            return jsonify({"message": "Please send correct json object"})
 
         if model_id in models:
             model = models[model_id]
@@ -87,9 +94,17 @@ def predict():
                     "message": "Model with model_id {} not found".format(model_id),
                 })
 
-        query = request.args.get("query")
+        if 'query' in request.args:
+            query = request.args['query']
+        elif 'query' in request.form:
+            query = request.form['query']
+        else:
+            return jsonify({"message": "Please send correct json object"})
+
         if 'labels' in request.args:
-            labels = request.args.get("labels")
+            labels = request.args['labels']
+        elif 'labels' in request.form:
+            query = request.form['labels']
         else:
             labels = list()
 
