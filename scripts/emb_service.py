@@ -26,19 +26,19 @@ def get_vector():
     else:
         tokens = request.args.getlist("tokens")
     if (
-        "tag" not in request.args
+        "mode" not in request.args
     ):
         return jsonify({
-            "message": "Please sent GET query with `tokens` and `tag` keys",
+            "message": "Please sent GET query with `tokens` and `mode` keys",
         })
 
-    tag = request.args.get("tag")
+    mode = request.args.get("mode")
 
-    if tag not in emb_dict:
+    if mode not in emb_dict:
         return jsonify({
-            "message": "Bad `tag` key",
+            "message": "Bad `mode` key",
         })
-    embedder = emb_dict[tag]
+    embedder = emb_dict[mode]
     vector = list(embedder(tokens))
     return jsonify({'vector': vector})
 
