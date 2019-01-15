@@ -1,4 +1,6 @@
-from deepcubes.cubes import TrainableCube, PredictorCube, CubeLabel
+from .cube import TrainableCube, PredictorCube, CubeLabel
+from ..utils.functions import sorted_labels
+
 import re
 from collections import defaultdict
 
@@ -32,6 +34,5 @@ class PatternMatcher(TrainableCube, PredictorCube):
 
                     break
 
-        return sorted([CubeLabel(label, labels_probas[label])
-                       for label in unique_labels],
-                      key=lambda elem: (-elem[1], elem[0]))
+        return sorted_labels([CubeLabel(label, labels_probas[label])
+                              for label in unique_labels])

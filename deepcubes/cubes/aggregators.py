@@ -1,12 +1,12 @@
 from .cube import PredictorCube, CubeLabel, Cube
+from ..utils.functions import sorted_labels
 from collections import defaultdict
 
 
 class Pipe(Cube):
     """Linear cubes pipeline"""
 
-    def __init__(self, cubes):
-        self.cubes = cubes
+    def __init__(self, cubes): self.cubes = cubes
 
     def forward(self, input):
         result = input
@@ -30,6 +30,5 @@ class Max(PredictorCube):
                 if cube_label.proba >= max_label_proba[cube_label.label]:
                     max_label_proba[cube_label.label] = cube_label.proba
 
-        return sorted([CubeLabel(label, proba)
-                       for label, proba in max_label_proba.items()],
-                      key=lambda elem: (-elem[1], elem[0]))
+        return sorted_labels([CubeLabel(label, proba)
+                              for label, proba in max_label_proba.items()])
