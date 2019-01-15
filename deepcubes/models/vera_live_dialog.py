@@ -191,6 +191,7 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
 
     def save(self, path, name='vera_live_dialog.cube'):
         super(VeraLiveDialog, self).save(path, name)
+
         generics_params = {
             name: generic.save(
                 path=os.path.join(path, 'generics'),
