@@ -59,9 +59,47 @@ class TestVeraLiveDialog(unittest.TestCase):
     def test_live_dialog_model_loading(self):
         vera = VeraLiveDialog(self.emb_path, self.generic_data_path)
         vera.train(self.config)
-        model_id = 1
         name = 'live_dialog.cube'
-        new_path = vera.save(model_id=model_id, name=name, path=self.data_dir)
+        model_id = 1
+        model_path = os.path.join(self.data_dir, str(model_id))
+        new_path = vera.save(name=name, path=model_path)
         new_vera = VeraLiveDialog.load(path=new_path)
+
         self.assertEqual(vera.config, new_vera.config)
+
+        self.assertEqual(
+            vera.intent_classifier.tokenizer.mode,
+            new_vera.intent_classifier.tokenizer.mode
+        )
+
+        self.assertEqual(
+            vera.intent_classifier.embedder.emb_url,
+            new_vera.intent_classifier.embedder.emb_url
+        )
+
+        self.assertEqual(
+            vera.intent_classifier.embedder.tag,
+            new_vera.intent_classifier.embedder.tag
+        )
+
+        self.assertEqual(
+            vera.intent_classifier.log_reg_classifier.clf.coef_.tolist(),
+            new_vera.intent_classifier.log_reg_classifier.clf.coef_.tolist()
+        )
+
+        self.assertEqual(
+            vera.generics['yes'].labels,
+            new_vera.generics['yes'].labels
+        )
+
+        self.assertEqual(
+            vera.generics['no'].labels,
+            new_vera.generics['no'].labels
+        )
+
+        self.assertEqual(
+            vera.generics['repeat'].labels,
+            new_vera.generics['repeat'].labels
+        )
+
         shutil.rmtree(os.path.join(self.data_dir, str(model_id)))

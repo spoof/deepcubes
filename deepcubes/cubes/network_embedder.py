@@ -8,7 +8,7 @@ class NetworkEmbedder(TrainableCube):
     """Network embedder"""
 
     def __init__(self, url):
-        self.url = url
+        self.emb_url = url
 
     def train(self, tag):
         self.tag = tag
@@ -19,7 +19,7 @@ class NetworkEmbedder(TrainableCube):
             'tag': self.tag,
         }
 
-        response = requests.get(self.url, params)
+        response = requests.get(self.emb_url, params)
         if response.status_code != 200:
             return None
 
@@ -29,11 +29,11 @@ class NetworkEmbedder(TrainableCube):
         else:
             return content['vector']
 
-    def save(self, name='network_embedder.cube', path='scripts/embedders'):
-        os.makedirs(path, exist_ok=True)
+    def save(self, path, name='network_embedder.cube'):
+        super(NetworkEmbedder, self).save(path, name)
         cube_params = {
             'cube': self.__class__.__name__,
-            'url': self.url,
+            'url': self.emb_url,
             'tag': self.tag,
         }
 

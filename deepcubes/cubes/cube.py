@@ -1,5 +1,6 @@
 from collections import namedtuple
 from typing import List
+import os
 
 
 class Cube(object):
@@ -18,8 +19,8 @@ class TrainableCube(Cube):
     def train(self, *input):
         raise NotImplementedError
 
-    def save(self, *input):
-        raise NotImplementedError
+    def save(self, path, name, *input):
+        os.makedirs(path, exist_ok=True)
 
     def load(self, *input):
         raise NotImplementedError

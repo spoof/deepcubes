@@ -65,8 +65,8 @@ class Tokenizer(TrainableCube):
 
         return tokens
 
-    def save(self, name='token.cube', path='scripts/tokenizers'):
-        os.makedirs(path, exist_ok=True)
+    def save(self, path, name='token.cube'):
+        super(Tokenizer, self).save(path, name)
         cube_params = {
             'cube': self.__class__.__name__,
             'mode': self.mode

@@ -37,9 +37,7 @@ class Generic(TrainableCube, PredictorCube):
         return [CubeLabel(label, 0) for label in self.labels]
 
     def save(self, path, name='generics.cube'):
-        model_path = os.path.join(path, 'generics')
-        os.makedirs(model_path, exist_ok=True)
-
+        super(Generic, self).save(path, name)
         cube_params = {
             'cube': self.__class__.__name__,
             'labels': self.labels,
@@ -47,7 +45,7 @@ class Generic(TrainableCube, PredictorCube):
             'data_path': self.data_path,
         }
 
-        cube_path = os.path.join(model_path, name)
+        cube_path = os.path.join(path, name)
         with open(cube_path, 'w') as out:
             out.write(json.dumps(cube_params))
 
@@ -90,18 +88,15 @@ class IntentClassifier(TrainableCube, PredictorCube):
         return self.log_reg_classifier(self.vectorizer(query))
 
     def save(self, path, name='intent_classifier.cube'):
-        model_path = os.path.join(path, 'intent_classifier')
-        os.makedirs(model_path, exist_ok=True)
+        super(IntentClassifier, self).save(path, name)
         cube_params = {
             'cube': self.__class__.__name__,
-            'tokenizer': self.tokenizer.save(path=model_path),
-            'embedder': self.embedder.save(path=model_path),
-            'log_reg_classifier': self.log_reg_classifier.save(
-                path=model_path
-            ),
+            'tokenizer': self.tokenizer.save(path=path),
+            'embedder': self.embedder.save(path=path),
+            'log_reg_classifier': self.log_reg_classifier.save(path=path),
         }
 
-        cube_path = os.path.join(model_path, name)
+        cube_path = os.path.join(path, name)
         with open(cube_path, 'w') as out:
             out.write(json.dumps(cube_params))
 
@@ -194,17 +189,11 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
 
         return max(query)
 
-    def save(
-        self,
-        model_id, name='vera_live_dialog.cube',
-        path='scripts/models'
-    ):
-        model_path = os.path.join(path, str(model_id))
-        os.makedirs(model_path, exist_ok=True)
-
+    def save(self, path, name='vera_live_dialog.cube'):
+        super(VeraLiveDialog, self).save(path, name)
         generics_params = {
             name: generic.save(
-                path=model_path,
+                path=os.path.join(path, 'generics'),
                 name='{}_generic.coub'.format(name)
             ) for name, generic in self.generics.items()
         }
@@ -215,10 +204,12 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
             'generics': generics_params,
             'embedder_url': self.embedder_url,
             'generic_data_path': self.generic_data_path,
-            'intent_classifier': self.intent_classifier.save(path=model_path),
+            'intent_classifier': self.intent_classifier.save(
+                path=os.path.join(path, 'intent_classifier')
+            ),
         }
 
-        cube_path = os.path.join(model_path, name)
+        cube_path = os.path.join(path, name)
         with open(cube_path, 'w') as out:
             out.write(json.dumps(cube_params))
 

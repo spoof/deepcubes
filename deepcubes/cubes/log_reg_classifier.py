@@ -35,9 +35,9 @@ class LogRegClassifier(PredictorCube, TrainableCube):
             raise e
 
     def save(
-        self, name='logistic_regression.cube', path='scripts/classifiers'
+        self, path, name='logistic_regression.cube'
     ):
-        os.makedirs(path, exist_ok=True)
+        super(LogRegClassifier, self).save(path, name)
         cube_path = os.path.join(path, name)
         with open(cube_path, "wb") as handle:
             pickle.dump({
