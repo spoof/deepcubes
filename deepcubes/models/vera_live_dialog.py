@@ -208,6 +208,8 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
             'intent_classifier': self.intent_classifier.save(
                 path=os.path.join(path, 'intent_classifier')
             ),
+            'embedder_url': self.embedder_url,
+            'generic_data_path': self.generic_data_path,
         }
 
         cube_path = os.path.join(path, name)
