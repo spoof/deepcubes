@@ -201,12 +201,14 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
     ):
         model_path = os.path.join(path, str(model_id))
         os.makedirs(model_path, exist_ok=True)
+
         generics_params = {
             name: generic.save(
                 path=model_path,
                 name='{}_generic.coub'.format(name)
             ) for name, generic in self.generics.items()
         }
+
         cube_params = {
             'cube': self.__class__.__name__,
             'config': self.config,

@@ -40,14 +40,14 @@ class LogRegClassifier(PredictorCube, TrainableCube):
         os.makedirs(path, exist_ok=True)
         cube_path = os.path.join(path, name)
         with open(cube_path, "wb") as handle:
-            pickle.dump(
-                {
-                    'cube': self.__class__.__name__,
-                    'clf': self.clf,
-                },
+            pickle.dump({
+                'cube': self.__class__.__name__,
+                'clf': self.clf,
+            },
                 protocol=pickle.HIGHEST_PROTOCOL,
                 file=handle
             )
+
         return cube_path
 
     @classmethod

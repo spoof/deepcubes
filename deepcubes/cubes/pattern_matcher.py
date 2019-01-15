@@ -16,7 +16,6 @@ class PatternMatcher(TrainableCube, PredictorCube):
     def forward(self, query):
         labels, probas = [], []
         for label, patterns in self.data:
-
             proba = 0
             for pattern in patterns:
                 if re.match(pattern, query):
