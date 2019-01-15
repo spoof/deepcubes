@@ -37,6 +37,7 @@ class TestLogRegClassifier(unittest.TestCase):
                 self.answer_to_label[answer] = idx
                 self.label_to_answer[idx] = answer
                 idx += 1
+
             vector = self.embedder(self.tokenizer(question))
             self.Y.append(self.answer_to_label[answer])
             self.X.append(vector)

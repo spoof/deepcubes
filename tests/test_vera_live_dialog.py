@@ -75,9 +75,11 @@ class TestVeraLiveDialog(unittest.TestCase):
     def test_live_dialog_model_loading(self):
         vera = VeraLiveDialog(self.emb_path, self.generic_data_path)
         vera.train(self.config)
+
         name = 'live_dialog.cube'
         model_id = 1
         model_path = os.path.join(self.data_dir, str(model_id))
+
         new_path = vera.save(name=name, path=model_path)
         new_vera = VeraLiveDialog.load(path=new_path)
 
