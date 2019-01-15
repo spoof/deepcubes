@@ -26,15 +26,14 @@ class Generic(TrainableCube, PredictorCube):
         texts = []
         with open(self.data_path, "r") as data_file:
             for line in data_file:
-                text, tag = line.split("\t")
+                text, tag = line.strip().split("\t")
                 if tag == self.tag:
                     texts.append(text)
 
-        self.ed_matcher.train([], [], self.MAX_EDIT_DIST)
+        self.ed_matcher.train([labels], [texts], self.MAX_EDIT_DIST)
 
     def forward(self, text):
-        # TODO: not implemented
-        return [CubeLabel(label, 0) for label in self.labels]
+        return self.ed_matcher(text)
 
     def save(self, path, name='generics.cube'):
         super(Generic, self).save(path, name)
@@ -43,6 +42,7 @@ class Generic(TrainableCube, PredictorCube):
             'labels': self.labels,
             'tag': self.tag,
             'data_path': self.data_path,
+            'ed_matcher': self.ed_matcher.save(path),
         }
 
         cube_path = os.path.join(path, name)
@@ -58,6 +58,7 @@ class Generic(TrainableCube, PredictorCube):
 
         model = cls(cube_params['tag'], cube_params['data_path'])
         model.labels = cube_params['labels']
+        model.ed_matcher = EditDistanceMatcher.load(cube_params["ed_matcher"])
 
         return model
 

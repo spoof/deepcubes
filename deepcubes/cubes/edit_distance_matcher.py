@@ -9,6 +9,8 @@ class EditDistanceMatcher(PredictorCube, TrainableCube):
     def __init__(self):
         self.data = []
         self.max_distance = -1
+        self.labels = []
+        self.texts = []
 
     def train(self, labels, texts, max_distance):
         """Arguments:
@@ -40,3 +42,9 @@ class EditDistanceMatcher(PredictorCube, TrainableCube):
         return sorted([CubeLabel(label, labels_probas[label])
                        for label in unique_labels],
                       key=lambda elem: (-elem[1], elem[0]))
+
+    def save(self, path, name="pattern_matcher"):
+        return None
+
+    def load(self):
+        return None

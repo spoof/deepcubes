@@ -26,6 +26,10 @@ class TestVeraLiveDialog(unittest.TestCase):
                     "label": "bye-bye",
                     "patterns": ["пока", "пока-пока.*"],
                     "intent_phrases": ["пока", "прощай"]
+                },
+                {
+                    "label": "rep",
+                    "generics": ["repeat"]
                 }]
         }
 
@@ -37,23 +41,28 @@ class TestVeraLiveDialog(unittest.TestCase):
         # TODO: near equal checking
         self.assertEqual(
             vera("привет"),
-            [("hello", 1), ("bye-bye", 0.5)]
+            [("hello", 1), ("bye-bye", 0.5), ("rep", 0)]
         )
 
         # TODO: near equal checking
         self.assertEqual(
             vera("приветик"),
-            [("hello", 1), ("bye-bye", 0.5)]
+            [("hello", 1), ("bye-bye", 0.5), ("rep", 0)]
         )
 
         self.assertEqual(
             vera("прив пока-пока"),
-            [("bye-bye", 0.5), ("hello", 0.5)]
+            [("bye-bye", 0.5), ("hello", 0.5), ("rep", 0)]
         )
 
         self.assertEqual(
             vera("пока-пока привет"),
-            [("bye-bye", 1), ("hello", 1)]
+            [("bye-bye", 1), ("hello", 1), ("rep", 0)]
+        )
+
+        self.assertEqual(
+            vera("повтори"),
+            [("rep", 1), ("bye-bye", 0.5), ("hello", 0.5)]
         )
 
     def test_live_dialog_model_loading(self):
