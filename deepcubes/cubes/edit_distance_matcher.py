@@ -44,7 +44,7 @@ class EditDistanceMatcher(PredictorCube, TrainableCube):
         return sorted_labels([CubeLabel(label, labels_probas[label])
                               for label in unique_labels])
 
-    def save(self, path, name="pattern_matcher"):
+    def save(self, path, name="edit_dist_matcher"):
         return None
 
     def load(self):

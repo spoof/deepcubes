@@ -15,7 +15,8 @@ class TestVeraLiveDialog(unittest.TestCase):
         self.generic_data_path = 'tests/data/generic.txt'
 
         self.config = {
-            "lang": "test",
+            "embedder_mode": "test",
+            "tokenizer_mode": "lem",
             "labels_settings": [
                 {
                     "label": "hello",
@@ -87,8 +88,8 @@ class TestVeraLiveDialog(unittest.TestCase):
         )
 
         self.assertEqual(
-            vera.intent_classifier.embedder.tag,
-            new_vera.intent_classifier.embedder.tag
+            vera.intent_classifier.embedder.mode,
+            new_vera.intent_classifier.embedder.mode
         )
 
         self.assertEqual(

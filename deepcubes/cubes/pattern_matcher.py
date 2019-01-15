@@ -36,3 +36,9 @@ class PatternMatcher(TrainableCube, PredictorCube):
 
         return sorted_labels([CubeLabel(label, labels_probas[label])
                               for label in unique_labels])
+
+    def save(self, path, name="pattern_matcher"):
+        return None
+
+    def load(self):
+        return None

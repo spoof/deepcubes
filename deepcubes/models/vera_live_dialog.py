@@ -14,8 +14,8 @@ class Generic(TrainableCube, PredictorCube):
 
     MAX_EDIT_DIST = 1  # may be need to control from user?
 
-    def __init__(self, tag, data_path):
-        self.tag = tag
+    def __init__(self, mode, data_path):
+        self.mode = mode
         self.data_path = data_path
         self.labels = []
         self.ed_matcher = EditDistanceMatcher()
@@ -26,8 +26,8 @@ class Generic(TrainableCube, PredictorCube):
         texts = []
         with open(self.data_path, "r") as data_file:
             for line in data_file:
-                text, tag = line.strip().split("\t")
-                if tag == self.tag:
+                text, mode = line.strip().split("\t")
+                if mode == self.mode:
                     texts.append(text)
 
         self.ed_matcher.train([labels], [texts], self.MAX_EDIT_DIST)
@@ -40,7 +40,7 @@ class Generic(TrainableCube, PredictorCube):
         cube_params = {
             'cube': self.__class__.__name__,
             'labels': self.labels,
-            'tag': self.tag,
+            'mode': self.mode,
             'data_path': self.data_path,
             'ed_matcher': self.ed_matcher.save(path),
         }
@@ -56,7 +56,7 @@ class Generic(TrainableCube, PredictorCube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        model = cls(cube_params['tag'], cube_params['data_path'])
+        model = cls(cube_params['mode'], cube_params['data_path'])
         model.labels = cube_params['labels']
         model.ed_matcher = EditDistanceMatcher.load(cube_params["ed_matcher"])
 
@@ -73,12 +73,11 @@ class IntentClassifier(TrainableCube, PredictorCube):
 
         self.log_reg_classifier = LogRegClassifier()
 
-    def train(self, intent_labels, intent_phrases, lang):
-        # TODO: correct train options according to lang
-        self.tokenizer.train("lem")
+    def train(self, intent_labels, intent_phrases,
+              embedder_mode, tokenizer_mode):
 
-        # TODO: lang-tag messy!?
-        self.embedder.train(lang)
+        self.embedder.train(embedder_mode)
+        self.tokenizer.train(tokenizer_mode)
 
         intent_vectors = [self.vectorizer(phrase)
                           for phrase in intent_phrases]
@@ -139,7 +138,8 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
     def train(self, config):
         """Config dictionary
 
-        "lang": 'rus' or 'eng'
+        "tokenizer_mode" (str),
+        "embedder_mode"  (str),
         "labels_settings":
             [
                 {
@@ -182,7 +182,8 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
             self.generics[generic].train(generic_labels[generic])
 
         self.intent_classifier.train(intent_labels, intent_phrases,
-                                     config["lang"])
+                                     config["embedder_mode"],
+                                     config["tokenizer_mode"])
 
     def forward(self, query, labels=[]):
         max = Max([self.intent_classifier, self.pattern_matcher]
