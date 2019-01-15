@@ -15,7 +15,7 @@ Just several examples of usage
 		{
 			"label" (string) unique label name
 			"patterns" (list[string]) regexp with patterns, example: ["нет", "нет.*"]
-			"generics": (list[string]) list with generics names (availible "yes", "no", "repeat")
+			"generics": (list[string]) list with generics names ("yes", "no", "repeat")
 			"intent_phrases": (list[string]) list with intent questoins phrases
 		},
 		...
@@ -40,3 +40,13 @@ return collection of labels sorted decreasingly according probabilities
 	...
 ]
 ```
+
+
+## Embedder service
+
+### /get_vector
+
+
+`GET` query with `mode` (string) ("rus" or "eng") and `tokens` (list[string]) fields.
+
+return json string with `vector` as list of floats with embedding vector components.
