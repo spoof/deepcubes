@@ -11,6 +11,9 @@ class TestVeraLiveDialog(unittest.TestCase):
         # TODO: get path from environment
         self.emb_path = 'http://51.144.105.1:3349/get_vector'
         self.data_dir = 'tests/data'
+
+        self.generic_data_path = 'tests/data/generic.txt'
+
         self.config = {
             "lang": "test",
             "labels_settings": [
@@ -27,7 +30,7 @@ class TestVeraLiveDialog(unittest.TestCase):
         }
 
     def test_vera_dialog(self):
-        vera = VeraLiveDialog(self.emb_path)
+        vera = VeraLiveDialog(self.emb_path, self.generic_data_path)
 
         vera.train(self.config)
 
@@ -54,7 +57,7 @@ class TestVeraLiveDialog(unittest.TestCase):
         )
 
     def test_live_dialog_model_loading(self):
-        vera = VeraLiveDialog(self.emb_path)
+        vera = VeraLiveDialog(self.emb_path, self.generic_data_path)
         vera.train(self.config)
         model_id = 1
         name = 'live_dialog.cube'

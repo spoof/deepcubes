@@ -1,0 +1,6 @@
+да	yes
+нет	no
+повтори	repeat
+не слышно	repeat
+ага	yes
+не	no

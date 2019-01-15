@@ -126,13 +126,18 @@ class IntentClassifier(TrainableCube, PredictorCube):
 class VeraLiveDialog(TrainableCube, PredictorCube):
     """Live dialog model"""
 
-    def __init__(self, embedder_url):
+    def __init__(self, embedder_url, generic_data_path):
         self.pattern_matcher = PatternMatcher()
+
         self.generics = {
-            "yes": Generic("yes", None),
-            "no": Generic("no", None),
-            "repeat": Generic("repeat", None)
+            "yes": Generic("yes", generic_data_path),
+            "no": Generic("no", generic_data_path),
+            "repeat": Generic("repeat", generic_data_path)
         }
+
+        self.embedder_url = embedder_url
+        self.generic_data_path = generic_data_path
+
         self.intent_classifier = IntentClassifier(embedder_url)
 
     def train(self, config):
@@ -208,6 +213,8 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
             'cube': self.__class__.__name__,
             'config': self.config,
             'generics': generics_params,
+            'embedder_url': self.embedder_url,
+            'generic_data_path': self.generic_data_path,
             'intent_classifier': self.intent_classifier.save(path=model_path),
         }
 
@@ -222,13 +229,16 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        model = cls(None)
+        model = cls(cube_params["embedder_url"],
+                    cube_params["generic_data_path"])
+
         model.config = cube_params['config']
         model.generics = {
             name: Generic.load(
                 path
             ) for name, path in cube_params['generics'].items()
         }
+
         model.intent_classifier = IntentClassifier.load(
             cube_params['intent_classifier']
         )
