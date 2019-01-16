@@ -35,19 +35,19 @@ app = Flask(__name__)
 
 
 def load_model(model_id):
-        print("Load model {} ...".format(model_id))
-        model_path = os.path.join(
-            MODEL_STORAGE, "{}/vera_live_dialog.cube".format(model_id)
-        )
+    print("Load model {} ...".format(model_id))
+    model_path = os.path.join(
+        MODEL_STORAGE, "{}/vera_live_dialog.cube".format(model_id)
+    )
 
-        if not os.path.isfile(model_path):
-            return False
+    if not os.path.isfile(model_path):
+        return False
 
-        if model_id not in models:
-            model = VeraLiveDialog.load(model_path)
-            models[model_id] = model
+    if model_id not in models:
+        model = VeraLiveDialog.load(model_path)
+        models[model_id] = model
 
-        return True
+    return True
 
 
 def get_new_model_id(path):
@@ -106,7 +106,7 @@ def predict():
         if 'labels' in request.args:
             labels = request.args.getlist('labels')
         elif 'labels' in request.form:
-            query = request.formi.getlist('labels')
+            labels = request.form.getlist('labels')
         else:
             labels = list()
 
@@ -118,7 +118,7 @@ def predict():
         for label, probability in model_answer:
             output.append({
                 "label": label,
-                "probability": probability,
+                "proba": probability,
             })
 
             logging.info('predicted label: {}'.format(label))
