@@ -61,7 +61,7 @@ def get_new_model_id(path):
     return new_model_id
 
 
-@app.route("/predict", methods=["GET"])
+@app.route("/predict", methods=["GET", "POST"])
 def predict():
     try:
         if (
@@ -104,9 +104,9 @@ def predict():
             return jsonify({"message": "Please send correct json object"})
 
         if 'labels' in request.args:
-            labels = request.args['labels']
+            labels = request.args.getlist('labels')
         elif 'labels' in request.form:
-            query = request.form['labels']
+            query = request.formi.getlist('labels')
         else:
             labels = list()
 
