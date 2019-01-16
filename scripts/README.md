@@ -34,7 +34,7 @@ Returns collection of labels sorted decreasingly according probabilities.
 ```
 [
 	{
-		"label": string,
+		"labels": array representation,
 		"proba": float
 	},
 	...
