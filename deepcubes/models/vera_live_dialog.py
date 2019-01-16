@@ -195,13 +195,13 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         max = Max([self.intent_classifier, self.pattern_matcher]
                   + list(self.generics.values()))
 
+        answer = [cube_label for cube_label in max(query)
+                  if not len(labels) or cube_label.label in labels]
+
         not_understand_label = CubeLabel(self.config["not_understand_label"],
                                          self.NOT_UNDERSTAND_PROBA)
 
-        answer = sorted_labels(max(query) + [not_understand_label])
-
-        return [cube_label for cube_label in answer
-                if not len(labels) or cube_label.label in labels]
+        return sorted_labels(answer + [not_understand_label])
 
     def save(self, path, name='vera_live_dialog.cube'):
         super().save(path, name)

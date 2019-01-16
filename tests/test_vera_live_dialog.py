@@ -74,7 +74,7 @@ class TestVeraLiveDialog(unittest.TestCase):
 
         self.assertEqual(
             vera("повтори", ["rep", "hello"]),
-            [("rep", 1), ("hello", 0.5)]
+            [("rep", 1), ("not_understand", 0.6), ("hello", 0.5)]
         )
 
     def test_live_dialog_model_loading(self):
