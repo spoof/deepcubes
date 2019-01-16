@@ -27,14 +27,14 @@ Returns json string with `model_id` (`int`).
 
 ### /predict
 
-`GET` or `POST` query with `model_id` (`int`) field (returned by `/train`) and `query` (`string`) field as user input text. Additionall `labels` (`[stirng]`) field can be specified, in this case model returns probabilities only for specified labels.
+`GET` or `POST` query with `model_id` (`int`) field (returned by `/train`) and `query` (`string`) field as user input text. Additionall `labels` (`[array representation]`) field can be specified, in this case model returns probabilities only for specified labels.
 
 Returns collection of labels sorted decreasingly according probabilities.
 
 ```
 [
 	{
-		"labels": array representation,
+		"label": string,
 		"proba": float
 	},
 	...
