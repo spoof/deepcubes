@@ -9,7 +9,7 @@ class NetworkEmbedder(TrainableCube):
     """Network embedder"""
 
     def __init__(self, url):
-        self.emb_url = url
+        self.url = url
         self.mode = None
 
     def train(self, mode):
@@ -21,12 +21,13 @@ class NetworkEmbedder(TrainableCube):
             'mode': self.mode,
         }
 
-        response = requests.get(self.emb_url, params)
+        response = requests.get(self.url, params)
         if response.status_code != 200:
             return None
 
         content = json.loads(response.text)
         if 'vector' not in content:
+            # TODO: think about
             return None
         else:
             return content['vector']
@@ -36,7 +37,7 @@ class NetworkEmbedder(TrainableCube):
 
         cube_params = {
             'cube': self.__class__.__name__,
-            'url': self.emb_url,
+            'url': self.url,
             'mode': self.mode,
         }
 
@@ -51,10 +52,7 @@ class NetworkEmbedder(TrainableCube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        url = cube_params['url']
-        mode = cube_params['mode']
-
-        network_embedder = cls(url)
-        network_embedder.train(mode)
+        network_embedder = cls(cube_params["url"])
+        network_embedder.train(cube_params["mode"])
 
         return network_embedder

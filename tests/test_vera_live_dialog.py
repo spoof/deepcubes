@@ -91,8 +91,8 @@ class TestVeraLiveDialog(unittest.TestCase):
         )
 
         self.assertEqual(
-            vera.intent_classifier.embedder.emb_url,
-            new_vera.intent_classifier.embedder.emb_url
+            vera.intent_classifier.embedder.url,
+            new_vera.intent_classifier.embedder.url
         )
 
         self.assertEqual(

@@ -10,7 +10,7 @@ class Tokenizer(TrainableCube):
     """Word tokenizer"""
 
     def __init__(self):
-        self.mode_dict = {
+        self.modes = {
             'token': self._get_tokenize_words,
             'lem': self._get_lemmitize_words,
             None: self._get_tokenize_words,
@@ -45,6 +45,7 @@ class Tokenizer(TrainableCube):
 
     def _get_tokenize_words(self, text, letter_limit=2):
         """Delete words with fewer than `n` letters"""
+
         words = [word.lower() for word in text.split()
                  if len(word) > letter_limit]
 
@@ -56,13 +57,14 @@ class Tokenizer(TrainableCube):
 
         return text_cleared
 
-    def train(self, mode=None):
-        self.mode = mode if mode in self.mode_dict else None
+    def train(self, mode):
+        self.mode = mode if mode in self.modes else None
 
     def forward(self, text):
-        tokenizer = self.mode_dict[self.mode]
-        clean_text = self._text_clean(text)
-        tokens = tokenizer(clean_text)
+        cleaned_text = self._text_clean(text)
+
+        tokenizer = self.modes[self.mode]
+        tokens = tokenizer(cleaned_text)
 
         return tokens
 

@@ -71,7 +71,8 @@ def predict():
             or ("query" not in request.args and "query" not in request.form)
         ):
             return jsonify({
-                "message": "Please sent GET query with `model_id` and `query` keys",
+                "message": ("Please sent GET query"
+                            "with `model_id` and `query` keys"),
             })
 
         # parse data from json
@@ -91,7 +92,8 @@ def predict():
                 model = models[model_id]
             else:
                 return jsonify({
-                    "message": "Model with model_id {} not found".format(model_id),
+                    "message": "Model with model_id {} not found".format(
+                        model_id),
                 })
 
         if 'query' in request.args:

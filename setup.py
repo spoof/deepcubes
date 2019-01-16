@@ -25,5 +25,6 @@ setup(
     packages=find_packages(),
 
     keywords='nlp',
-    install_requires=["gensim", "sklearn", "pandas", "pymystem3"],
+    install_requires=["gensim", "sklearn", "pandas", "pymystem3",
+                      "numpy"],
 )
