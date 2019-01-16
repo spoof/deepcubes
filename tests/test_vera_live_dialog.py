@@ -72,6 +72,11 @@ class TestVeraLiveDialog(unittest.TestCase):
              ("bye-bye", 0.5), ("hello", 0.5)]
         )
 
+        self.assertEqual(
+            vera("повтори", ["rep", "hello"]),
+            [("rep", 1), ("hello", 0.5)]
+        )
+
     def test_live_dialog_model_loading(self):
         vera = VeraLiveDialog(self.emb_path, self.generic_data_path)
         vera.train(self.config)
