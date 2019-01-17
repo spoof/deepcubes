@@ -15,7 +15,8 @@ Just several examples of usage
 		{
 			"label": string,  # unique label name
 			"patterns": [string],  # list with regexps, example: ["нет", "нет.*"]
-			"generics": [string],  # list with generics, possible: ["yes", "no", "repeat"]
+			"generics": [string],  # list with generics, possible:
+                                               # ["yes", "no", "repeat", "no"questions"]
 			"intent_phrases": [string],  # list with intent phrases for ML
 		},
 		...

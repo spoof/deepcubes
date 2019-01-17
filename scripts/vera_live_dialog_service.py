@@ -8,7 +8,7 @@ import configparser
 from deepcubes.models import VeraLiveDialog
 
 config_parser = configparser.RawConfigParser()
-config_file_path = os.environ['LIVE_DIALOG_CONF']
+config_file_path = 'scripts/data/service.conf'
 config_parser.read(config_file_path)
 
 MODEL_STORAGE = json.loads(
@@ -22,6 +22,16 @@ GENETIC_DATA_PATH = json.loads(
 )
 
 models = dict()
+
+LANG_TO_EMB_MODE = {
+    'rus': 'rus',
+    'eng': 'eng',
+}
+
+LANG_TO_TOK_MODE = {
+    'rus': 'lem',
+    'eng': 'tokens',
+}
 
 print("Open log file...")
 logging.basicConfig(
@@ -146,11 +156,20 @@ def train():
 
         # parse data from json
         if 'config' in request.args:
-            config = json.loads(request.args["config"])
+            config_string = request.args["config"]
         elif 'config' in request.form:
-            config = json.loads(request.form["config"])
+            config_string = request.form["config"]
         else:
             return jsonify({"message": "Please send correct json object"})
+
+        try:
+            config = json.loads(config_string)
+        except Exception as e:
+            print(repr(e))
+            return jsonify({"message": "Config in wrong format."})
+
+        config['embedder_mode'] = LANG_TO_EMB_MODE[config['lang']]
+        config['tokenizer_mode'] = LANG_TO_TOK_MODE[config['lang']]
 
         live_dialog_model.train(config)
 

@@ -132,7 +132,8 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         self.generics = {
             "yes": Generic("yes", generic_data_path),
             "no": Generic("no", generic_data_path),
-            "repeat": Generic("repeat", generic_data_path)
+            "repeat": Generic("repeat", generic_data_path),
+            "no_questions": Generic("no_questions", generic_data_path)
         }
 
         self.embedder_url = embedder_url
