@@ -1,12 +1,12 @@
 import json
 import os
 
-from ..cubes import TrainableCube
+from ..cubes import TrainableCube, PredictorCube
 from ..cubes import LogRegClassifier, NetworkEmbedder
 from ..cubes import Tokenizer, Pipe
 
 
-class IntentClassifier(TrainableCube):
+class IntentClassifier(TrainableCube, PredictorCube):
 
     def __init__(self, embedder_url):
         self.tokenizer = Tokenizer()
