@@ -35,10 +35,6 @@ class TestVeraLiveDialog(unittest.TestCase):
                 }],
             "not_understand_label": "not_understand"
         }
-        self.config['lang'] = 'test'
-        with open('new_vra_test.conf', 'w') as out:
-            import json
-            out.write(json.dumps(self.config))
 
     def test_vera_dialog(self):
         vera = VeraLiveDialog(self.embedder, self.generic_data_path)
