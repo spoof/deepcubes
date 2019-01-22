@@ -45,18 +45,6 @@ class ServiceTest(unittest.TestCase):
         self.assertEqual(11, len(labels))
 
         predict_resp_data = self._get_predict_response(
-            query='A какая зарплата??',
-            model_id=model_id,
-            labels=[]
-        )
-        labels, probs = self._dicts_to_values_list(predict_resp_data)
-
-        self.assertEqual(
-            'salary',
-            predict_resp_data[0]['label']
-        )
-
-        predict_resp_data = self._get_predict_response(
             query='график',
             model_id=model_id,
             labels=[1, 2, 3]

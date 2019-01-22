@@ -9,11 +9,10 @@ class TestLogRegClassifier(unittest.TestCase):
 
     def setUp(self):
         self.tokenizer = Tokenizer()
-        self.embedder = Embedder()
+        self.embedder = Embedder('tests/data/test_embeds.kv')
         self.classifier = LogRegClassifier()
 
         self.tokenizer.train('lem')
-        self.embedder.train('tests/data/test_embeds.kv')
 
         self.questions, self.answers = [], []
 

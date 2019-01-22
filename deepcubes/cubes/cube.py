@@ -12,17 +12,17 @@ class Cube(object):
     def __call__(self, *input):
         return self.forward(*input)
 
+    def save(self, path, name, *input):
+        os.makedirs(path, exist_ok=True)
+
+    def load(self, *input):
+        raise NotImplementedError
+
 
 class TrainableCube(Cube):
     """Allow train cube with some data"""
 
     def train(self, *input):
-        raise NotImplementedError
-
-    def save(self, path, name, *input):
-        os.makedirs(path, exist_ok=True)
-
-    def load(self, *input):
         raise NotImplementedError
 
 

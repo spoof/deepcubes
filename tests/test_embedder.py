@@ -9,7 +9,8 @@ class TestEmbedder(unittest.TestCase):
 
     def setUp(self):
         self.tokenizer = Tokenizer()
-        self.embedder = Embedder()
+        self.emb_path = 'tests/data/test_embeds.kv'
+        self.embedder = Embedder(self.emb_path)
         self.text_phrase = ' '.join([
             'компании',
             'Робот',
@@ -20,8 +21,6 @@ class TestEmbedder(unittest.TestCase):
         ])
 
         self.data_dir = 'tests/data'
-        self.emb_path = 'tests/data/test_embeds.kv'
-        self.embedder.train(self.emb_path)
 
     def test_tokenizer(self):
         self.tokenizer.train('lem')
@@ -50,19 +49,22 @@ class TestEmbedder(unittest.TestCase):
 
     def test_get_zero_vector(self):
         np.testing.assert_almost_equal(self.embedder([]),
-                                       np.array([0.0, 0.0]), 1)
+                                       np.array([0.0]*100), 1)
 
         np.testing.assert_almost_equal(self.embedder(['test']),
-                                       np.array([0.0, 0.0]), 1)
+                                       np.array([0.0]*100), 1)
 
     def test_get_vector(self):
         self.tokenizer.train('lem')
 
         tokens = self.tokenizer('Робот Вера')
         generated_vector = self.embedder(tokens)
-        correct_vector = np.array([0.5, 0.6])
 
-        np.testing.assert_almost_equal(generated_vector, correct_vector, 1)
+        np.testing.assert_almost_equal(
+            sum(generated_vector),
+            -0.030646920857179794,
+            1
+        )
 
     def test_embedder_loading(self):
         name = 'embedder.cube'

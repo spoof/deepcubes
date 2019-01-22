@@ -1,18 +1,15 @@
-from .cube import TrainableCube
+from .cube import Cube
 
 import requests
 import json
 import os
 
 
-class NetworkEmbedder(TrainableCube):
+class NetworkEmbedder(Cube):
     """Network embedder"""
 
-    def __init__(self, url):
+    def __init__(self, url, mode):
         self.url = url
-        self.mode = None
-
-    def train(self, mode):
         self.mode = mode
 
     def forward(self, tokens):
@@ -52,7 +49,7 @@ class NetworkEmbedder(TrainableCube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        network_embedder = cls(cube_params["url"])
-        network_embedder.train(cube_params["mode"])
+        network_embedder = cls(cube_params["url"],
+                               cube_params["mode"])
 
         return network_embedder

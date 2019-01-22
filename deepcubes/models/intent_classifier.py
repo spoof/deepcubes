@@ -2,24 +2,22 @@ import json
 import os
 
 from ..cubes import TrainableCube, PredictorCube
-from ..cubes import LogRegClassifier, NetworkEmbedder
+from ..cubes import LogRegClassifier, NetworkEmbedder, Embedder
 from ..cubes import Tokenizer, Pipe
 
 
 class IntentClassifier(TrainableCube, PredictorCube):
 
-    def __init__(self, embedder_url):
+    def __init__(self, embedder):
         self.tokenizer = Tokenizer()
-        self.embedder = NetworkEmbedder(embedder_url)
+        self.embedder = embedder
 
         self.vectorizer = Pipe([self.tokenizer, self.embedder])
 
         self.log_reg_classifier = LogRegClassifier()
 
-    def train(self, intent_labels, intent_phrases,
-              embedder_mode, tokenizer_mode):
+    def train(self, intent_labels, intent_phrases, tokenizer_mode):
 
-        self.embedder.train(embedder_mode)
         self.tokenizer.train(tokenizer_mode)
 
         intent_vectors = [self.vectorizer(phrase)
@@ -37,6 +35,7 @@ class IntentClassifier(TrainableCube, PredictorCube):
             'cube': self.__class__.__name__,
             'tokenizer': self.tokenizer.save(path=path),
             'embedder': self.embedder.save(path=path),
+            'emb_type': self.embedder.__class__.__name__,
             'log_reg_classifier': self.log_reg_classifier.save(path=path),
         }
 
@@ -53,7 +52,13 @@ class IntentClassifier(TrainableCube, PredictorCube):
 
         model = cls(None)
         model.tokenizer = Tokenizer.load(cube_params['tokenizer'])
-        model.embedder = NetworkEmbedder.load(cube_params['embedder'])
+        if cube_params['emb_type'] == 'NetworkEmbedder':
+            model.embedder = NetworkEmbedder.load(cube_params['embedder'])
+        elif cube_params['emb_type'] == 'Embedder':
+            model.embedder = Embedder.load(cube_params['embedder'])
+        else:
+            # TODO raise exception
+            pass
         model.vectorizer = Pipe([model.tokenizer, model.embedder])
         model.log_reg_classifier = LogRegClassifier.load(
             cube_params['log_reg_classifier']

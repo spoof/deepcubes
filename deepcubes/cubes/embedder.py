@@ -1,18 +1,14 @@
-from .cube import TrainableCube
+from .cube import Cube
 from gensim.models import KeyedVectors
 import numpy as np
 import json
 import os
 
 
-class Embedder(TrainableCube):
+class Embedder(Cube):
     """Word embedder"""
 
-    def __init__(self):
-        self.path = None
-        self.model = None
-
-    def train(self, path):
+    def __init__(self, path):
         self.path = path
         self.model = KeyedVectors.load(path, mmap='r')
 
@@ -51,10 +47,6 @@ class Embedder(TrainableCube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        embedder = cls()
-
-        path = cube_params['path']
-        if path:
-            embedder.train(path)
+        embedder = cls(cube_params['path'])
 
         return embedder

@@ -2,14 +2,15 @@ import unittest
 import os
 import shutil
 
+from deepcubes.cubes import Embedder
 from deepcubes.models import VeraLiveDialog
 
 
 class TestVeraLiveDialog(unittest.TestCase):
 
     def setUp(self):
-        # TODO: get path from environment
-        self.emb_path = 'http://51.144.105.1:3349/get_vector'
+        emb_path = 'tests/data/test_embeds.kv'
+        self.embedder = Embedder(emb_path)
         self.data_dir = 'tests/data'
 
         self.generic_data_path = 'tests/data/generic.txt'
@@ -34,9 +35,13 @@ class TestVeraLiveDialog(unittest.TestCase):
                 }],
             "not_understand_label": "not_understand"
         }
+        self.config['lang'] = 'test'
+        with open('new_vra_test.conf', 'w') as out:
+            import json
+            out.write(json.dumps(self.config))
 
     def test_vera_dialog(self):
-        vera = VeraLiveDialog(self.emb_path, self.generic_data_path)
+        vera = VeraLiveDialog(self.embedder, self.generic_data_path)
 
         vera.train(self.config)
 
@@ -78,7 +83,7 @@ class TestVeraLiveDialog(unittest.TestCase):
         )
 
     def test_live_dialog_model_loading(self):
-        vera = VeraLiveDialog(self.emb_path, self.generic_data_path)
+        vera = VeraLiveDialog(self.embedder, self.generic_data_path)
         vera.train(self.config)
 
         name = 'live_dialog.cube'
@@ -96,13 +101,8 @@ class TestVeraLiveDialog(unittest.TestCase):
         )
 
         self.assertEqual(
-            vera.intent_classifier.embedder.url,
-            new_vera.intent_classifier.embedder.url
-        )
-
-        self.assertEqual(
-            vera.intent_classifier.embedder.mode,
-            new_vera.intent_classifier.embedder.mode
+            vera.intent_classifier.embedder.path,
+            new_vera.intent_classifier.embedder.path
         )
 
         self.assertEqual(

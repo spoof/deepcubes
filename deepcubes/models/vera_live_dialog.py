@@ -72,7 +72,7 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
 
     NOT_UNDERSTAND_PROBA = 0.6  # TODO: recalc according models
 
-    def __init__(self, embedder_url, generic_data_path):
+    def __init__(self, embedder, generic_data_path):
         self.pattern_matcher = PatternMatcher()
 
         self.generics = {
@@ -82,10 +82,10 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
             "no_questions": Generic("no_questions", generic_data_path)
         }
 
-        self.embedder_url = embedder_url
+        self.embedder = embedder
         self.generic_data_path = generic_data_path
 
-        self.intent_classifier = IntentClassifier(embedder_url)
+        self.intent_classifier = IntentClassifier(embedder)
 
     def train(self, config):
         """Config dictionary
@@ -135,7 +135,6 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
             self.generics[generic].train(generic_labels[generic])
 
         self.intent_classifier.train(intent_labels, intent_phrases,
-                                     config["embedder_mode"],
                                      config["tokenizer_mode"])
 
     def forward(self, query, labels=[]):
@@ -165,7 +164,6 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
             'config': self.config,
             'pattern_matcher': self.pattern_matcher.save(path=path),
             'generics': generics_params,
-            'embedder_url': self.embedder_url,
             'generic_data_path': self.generic_data_path,
             'intent_classifier': self.intent_classifier.save(
                 path=os.path.join(path, 'intent_classifier')
@@ -183,8 +181,7 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        model = cls(cube_params["embedder_url"],
-                    cube_params["generic_data_path"])
+        model = cls(None, cube_params["generic_data_path"])
 
         model.config = cube_params['config']
         model.pattern_matcher = PatternMatcher.load(

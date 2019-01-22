@@ -5,10 +5,16 @@ import logging
 import argparse
 import configparser
 
+from deepcubes.cubes import Embedder, NetworkEmbedder
 from deepcubes.models import VeraLiveDialog
 
+if 'LIVE_DIALOG_CONF' in os.environ:
+    config_file_path = os.environ['LIVE_DIALOG_CONF']
+else:
+    print('Config file not found. Text config is used...')
+    config_file_path = 'tests/data/test.conf'
+
 config_parser = configparser.RawConfigParser()
-config_file_path = 'scripts/data/service.conf'
 config_parser.read(config_file_path)
 
 MODEL_STORAGE = json.loads(
@@ -16,6 +22,11 @@ MODEL_STORAGE = json.loads(
 )
 
 EMB_PATH = json.loads(config_parser.get('live-dialog-service', 'EMB_PATH'))
+
+if 'http' in EMB_PATH:
+    emb_type = 'NetworkEmbedder'
+else:
+    emb_type = 'Embedder'
 
 GENETIC_DATA_PATH = json.loads(
     config_parser.get('live-dialog-service', 'GENETIC_DATA_PATH')
@@ -26,11 +37,13 @@ models = dict()
 LANG_TO_EMB_MODE = {
     'rus': 'rus',
     'eng': 'eng',
+    'test': 'test',
 }
 
 LANG_TO_TOK_MODE = {
     'rus': 'lem',
     'eng': 'tokens',
+    'test': 'lem',
 }
 
 print("Open log file...")
@@ -138,7 +151,7 @@ def predict():
 
     except Exception as e:
         # TODO: FIX. dangerous. loging?
-        print(e)
+        print(repr(e))
 
 
 @app.route("/train", methods=["GET", "POST"])
@@ -151,8 +164,6 @@ def train():
             return jsonify({
                 "message": ("Please sent GET or POST query with `config` key"),
             })
-
-        live_dialog_model = VeraLiveDialog(EMB_PATH, GENETIC_DATA_PATH)
 
         # parse data from json
         if 'config' in request.args:
@@ -168,9 +179,17 @@ def train():
             print(repr(e))
             return jsonify({"message": "Config in wrong format."})
 
-        config['embedder_mode'] = LANG_TO_EMB_MODE[config['lang']]
+        embedder_mode = LANG_TO_EMB_MODE[config['lang']]
+
+        if emb_type == 'NetworkEmbedder':
+            embedder = NetworkEmbedder(EMB_PATH, embedder_mode)
+        else:
+            embedder = Embedder(EMB_PATH)
+
+        config['embedder_mode'] = embedder_mode
         config['tokenizer_mode'] = LANG_TO_TOK_MODE[config['lang']]
 
+        live_dialog_model = VeraLiveDialog(embedder, GENETIC_DATA_PATH)
         live_dialog_model.train(config)
 
         new_model_id = get_new_model_id(MODEL_STORAGE)
@@ -188,7 +207,7 @@ def train():
 
     except Exception as e:
         # TODO: FIX. dangerous. loging?
-        print(e)
+        print(repr(e))
 
 
 if __name__ == "__main__":

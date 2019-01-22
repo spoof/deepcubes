@@ -50,14 +50,13 @@ class TestAggregators(unittest.TestCase):
         tokenizer = Tokenizer()
         tokenizer.train('lem')
 
-        embedder = Embedder()
         emb_path = 'tests/data/test_embeds.kv'
-        embedder.train(emb_path)
+        embedder = Embedder(emb_path)
 
         pipe = Pipe([tokenizer, embedder])
 
         np.testing.assert_almost_equal(
-            pipe("Робот Вера"),
-            [0.5, 0.6],
+            sum(pipe("Робот Вера")),
+            -0.030646920857179794,
             1
         )
