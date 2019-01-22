@@ -1,37 +1,60 @@
-from deepcubes.cubes import Embedder
-from deepcubes.cubes import IntentClassifier
+from deepcubes.cubes import Embedder, NetworkEmbedder
+from deepcubes.models import LogisticIntentClassifier
 
 import json
 import os
 import argparse
+import configparser
 
 import pandas as pd
 
-MODEL_STORAGE = 'scripts/models/'
+if 'SERVICE_CONF' in os.environ:
+    config_file_path = os.environ['SERVICE_CONF']
+else:
+    print('Config file not found. Text config is used...')
+    config_file_path = 'tests/data/test.conf'
 
-embedder = Embedder(os.environ['INTENT_CLASSIFIER_MODEL'])
-classifier = IntentClassifier(embedder)
+config_parser = configparser.RawConfigParser()
+config_parser.read(config_file_path)
+
+MODEL_STORAGE = json.loads(
+    config_parser.get('classifier-service', 'MODEL_STORAGE')
+)
+
+EMB_PATH = json.loads(config_parser.get('classifier-service', 'EMB_PATH'))
+
+if 'http' in EMB_PATH:
+    emb_type = 'NetworkEmbedder'
+else:
+    emb_type = 'Embedder'
 
 
-def main(csv_path=None, json_path=None, trash_questions_path=None):
-    if not csv_path and not json_path:
-        print('Missing csv_path or json_path')
-        return
+LANG_TO_EMB_MODE = {
+    'rus': 'rus',
+    'eng': 'eng',
+    'test': 'test',
+}
 
-    new_model_id = None
+LANG_TO_TOK_MODE = {
+    'rus': 'lem',
+    'eng': 'tokens',
+    'test': 'lem',
+}
+
+
+def get_new_model_id(path):
+    models_ids = [int(file_name) for file_name in os.listdir(path) if not (
+        os.path.isfile(os.path.join(path, file_name))
+    )]
+
+    sorted_ids = sorted(models_ids)
+    new_model_id = sorted_ids[-1] + 1 if len(sorted_ids) else 0
+
+    return new_model_id
+
+
+def main(csv_path, lang):
     questions, answers = [], []
-
-    if json_path:
-        # parse data from json
-        with open(json_path, "r") as handle:
-            data = json.load(handle)
-
-        for label, category in enumerate(data):
-            answer = category["answers"][0]
-
-            for question in category["questions"]:
-                questions.append(question)
-                answers.append(answer)
 
     if csv_path:
         # parse from pandas data frame
@@ -46,10 +69,20 @@ def main(csv_path=None, json_path=None, trash_questions_path=None):
                 questions.append(question)
                 answers.append(answer)
 
-    classifier.train(questions, answers)
-    classifier.threshold_calc(trash_questions_path)
-    classifier.cross_val()
-    new_model_id = classifier.save(MODEL_STORAGE)
+    embedder_mode = LANG_TO_EMB_MODE[lang]
+
+    if emb_type == 'NetworkEmbedder':
+        embedder = NetworkEmbedder(EMB_PATH, embedder_mode)
+    else:
+        embedder = Embedder(EMB_PATH)
+
+    classifier = LogisticIntentClassifier(embedder)
+    tokenizer_mode = LANG_TO_TOK_MODE[lang]
+    classifier.train(answers, questions, tokenizer_mode)
+
+    new_model_id = get_new_model_id(MODEL_STORAGE)
+
+    classifier.save(os.path.join(MODEL_STORAGE, str(new_model_id)))
 
     if new_model_id is not None:
         print('Created model with id {}'.format(new_model_id))
@@ -60,17 +93,10 @@ if __name__ == '__main__':
         description='Train new model of intent classifier'
     )
     parser.add_argument(
-        '-j', '--json_path', required=False, type=str
-    )
-    parser.add_argument(
         '-c', '--csv_path', required=False, type=str
     )
     parser.add_argument(
-        '-t', '--trash_questions_path', required=False, type=str
+        '-l', '--lang', required=False, type=str
     )
     args = parser.parse_args()
-    main(
-        json_path=args.json_path,
-        csv_path=args.csv_path,
-        trash_questions_path=args.trash_questions_path
-    )
+    main(args.csv_path, args.lang)
