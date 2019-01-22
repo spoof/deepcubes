@@ -5,7 +5,7 @@ from ..cubes import TrainableCube, PredictorCube
 from ..cubes import PatternMatcher
 from ..cubes import Max, CubeLabel
 from ..cubes import EditDistanceMatcher
-from ..models import IntentClassifier
+from ..models import LogisticIntentClassifier
 from ..utils.functions import sorted_labels
 
 
@@ -85,13 +85,12 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         self.embedder = embedder
         self.generic_data_path = generic_data_path
 
-        self.intent_classifier = IntentClassifier(embedder)
+        self.intent_classifier = LogisticIntentClassifier(embedder)
 
     def train(self, config):
         """Config dictionary
 
         "tokenizer_mode" (str),
-        "embedder_mode"  (str),
         "labels_settings":
             [
                 {
@@ -194,7 +193,7 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
             ) for name, path in cube_params['generics'].items()
         }
 
-        model.intent_classifier = IntentClassifier.load(
+        model.intent_classifier = LogisticIntentClassifier.load(
             cube_params['intent_classifier']
         )
 

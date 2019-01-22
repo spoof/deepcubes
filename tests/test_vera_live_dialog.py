@@ -32,7 +32,8 @@ class TestVeraLiveDialog(unittest.TestCase):
                 {
                     "label": "rep",
                     "generics": ["repeat"]
-                }],
+                }
+            ],
             "not_understand_label": "not_understand"
         }
 

@@ -6,7 +6,7 @@ import os
 import scripts.vera_live_dialog_service as service
 
 
-class ServiceTest(unittest.TestCase):
+class VeraLiveDialogServiceTest(unittest.TestCase):
 
     def setUp(self):
         service.app.testing = True
@@ -17,9 +17,11 @@ class ServiceTest(unittest.TestCase):
 
         with open(self.test_config_path, 'r') as conf_file:
             self.test_config = conf_file.read()
+
         self.request_data = {
             'config':  self.test_config
         }
+
         self.test_models_list = list()
 
     def test_get_requests(self):

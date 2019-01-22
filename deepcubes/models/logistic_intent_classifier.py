@@ -6,7 +6,7 @@ from ..cubes import LogRegClassifier, NetworkEmbedder, Embedder
 from ..cubes import Tokenizer, Pipe
 
 
-class IntentClassifier(TrainableCube, PredictorCube):
+class LogisticIntentClassifier(TrainableCube, PredictorCube):
 
     def __init__(self, embedder):
         self.tokenizer = Tokenizer()
