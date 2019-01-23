@@ -39,11 +39,11 @@ class LogisticIntentClassifier(TrainableCube, PredictorCube):
             'log_reg_classifier': self.log_reg_classifier.save(path=path),
         }
 
-        cube_path = os.path.join(path, name)
-        with open(cube_path, 'w') as out:
+        self.cube_path = os.path.join(path, name)
+        with open(self.cube_path, 'w') as out:
             out.write(json.dumps(cube_params))
 
-        return cube_path
+        return self.cube_path
 
     @classmethod
     def load(cls, path):
@@ -63,5 +63,6 @@ class LogisticIntentClassifier(TrainableCube, PredictorCube):
         model.log_reg_classifier = LogRegClassifier.load(
             cube_params['log_reg_classifier']
         )
+        model.cube_path = path
 
         return model
