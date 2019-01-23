@@ -50,7 +50,7 @@ def load_model(model_id):
         MODEL_STORAGE, "{}/intent_classifier.cube".format(model_id)
     )
     if not os.path.isfile(model_path):
-        logger.info(
+        logger.error(
             "Model {} not found".format(model_id)
         )
         return False
@@ -82,13 +82,14 @@ def predict():
                 and "model_id" not in request.form)
             or ("query" not in request.args and "query" not in request.form)
         ):
-            logger.info("Invalid request received")
+            logger.error("Received invalid request")
             return jsonify({
-                "message": ("Please sent GET query"
+                "message": ("Please sent GET or POST query"
                             "with `model_id` and `query` keys"),
             })
 
-        logger.info("Request received")
+        logger.info("Received {} request from {}".format(request.method,
+                                                         request.remote_addr))
 
         # parse data from json
         if 'model_id' in request.args:
@@ -96,10 +97,10 @@ def predict():
         elif 'model_id' in request.form:
             model_id = int(request.form['model_id'])
         else:
-            logger.info("Invalid json object received")
+            logger.error("Received invalid json object")
             return jsonify({"message": "Please send correct json object"})
 
-        logger.info("Requested model with id {}".format(model_id))
+        logger.info("Received model id: {}".format(model_id))
         if model_id in models:
             model = models[model_id]
         else:
@@ -117,10 +118,10 @@ def predict():
         elif 'query' in request.form:
             query = request.form['query']
         else:
-            logger.info("Invalid json object received")
+            logger.error("Received invalid json object")
             return jsonify({"message": "Please send correct json object"})
 
-        logger.info('User query: {}'.format(query))
+        logger.info('Received query: {}'.format(query))
 
         model_answer = model(query)
 
@@ -143,7 +144,7 @@ def predict():
                 'answer': output,
             }
             print(json.dumps(data), file=out)
-
+        logger.info("Sending response...")
         return jsonify(output)
 
     except Exception:
