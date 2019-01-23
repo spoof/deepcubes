@@ -1,6 +1,6 @@
 # Deepcubes machine learning framework
 
-Robot Vera implementation of Intent Classifier logic based on combination of word embeddings and additional classifier on the top of them.
+Robot Vera implementation of machine learning and deep learning logic for a lot of kind inner projects. Like dialog systems, text classifiers, video processing.
 
 ## Authors
 

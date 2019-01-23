@@ -2,4 +2,6 @@ gensim
 sklearn
 pandas
 pymystem3
+numpy
 editdistance
+flask
