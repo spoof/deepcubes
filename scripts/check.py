@@ -28,18 +28,11 @@ if 'http' in EMB_PATH:
 else:
     emb_type = 'Embedder'
 
+LANG_TO_EMB_PATH = {lang: json.loads(path)
+                    for lang, path in config_parser['embedder'].items()}
 
-LANG_TO_EMB_MODE = {
-    'rus': 'rus',
-    'eng': 'eng',
-    'test': 'test',
-}
-
-LANG_TO_TOK_MODE = {
-    'rus': 'lem',
-    'eng': 'tokens',
-    'test': 'lem',
-}
+LANG_TO_TOK_MODE = {lang: json.loads(mode)
+                    for lang, mode in config_parser['tokenizer'].items()}
 
 
 def get_new_model_id(path):
@@ -69,10 +62,8 @@ def main(csv_path, lang):
                 questions.append(question)
                 answers.append(answer)
 
-    embedder_mode = LANG_TO_EMB_MODE[lang]
-
     if emb_type == 'NetworkEmbedder':
-        embedder = NetworkEmbedder(EMB_PATH, embedder_mode)
+        embedder = NetworkEmbedder(EMB_PATH, lang)
     else:
         embedder = Embedder(EMB_PATH)
 

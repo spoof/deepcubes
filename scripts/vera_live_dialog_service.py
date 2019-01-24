@@ -52,17 +52,11 @@ logger.info("Generic data path: {} ...".format(MODEL_STORAGE))
 
 models = dict()
 
-LANG_TO_EMB_MODE = {
-    'rus': 'rus',
-    'eng': 'eng',
-    'test': 'test',
-}
+LANG_TO_EMB_PATH = {lang: json.loads(path)
+                    for lang, path in config_parser['embedder'].items()}
 
-LANG_TO_TOK_MODE = {
-    'rus': 'lem',
-    'eng': 'tokens',
-    'test': 'lem',
-}
+LANG_TO_TOK_MODE = {lang: json.loads(mode)
+                    for lang, mode in config_parser['tokenizer'].items()}
 
 logger.info("Prepare Flask app...")
 app = Flask(__name__)
@@ -220,7 +214,7 @@ def train():
             return jsonify({"message": "Config in wrong format."})
 
         logger.info("Received `lang` key: {}".format(config['lang']))
-        embedder_mode = LANG_TO_EMB_MODE[config['lang']]
+        embedder_mode = config['lang']
         tokenizer_mode = LANG_TO_TOK_MODE[config['lang']]
 
         if emb_type == 'NetworkEmbedder':
