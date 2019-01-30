@@ -4,6 +4,7 @@ from collections import defaultdict
 import pickle
 import tqdm
 import numpy as np
+import os
 
 
 class Vocabulary(TrainableCube):
@@ -23,23 +24,34 @@ class Vocabulary(TrainableCube):
             "_PAD_": 3
         }
 
-    def save(self, path):
-        with open(path, "wb") as outfile:
+    def save(self, path, name='vocabulary.cube'):
+        super().save(path, name)
+
+        cube_path = os.path.join(path, name)
+        with open(cube_path, "wb") as handle:
             pickle.dump({
+                'cube': self.__class__.__name__,
                 "max_words": self.max_words,
                 "min_count": self.min_count,
                 "ids": self.ids
-            }, outfile)
+            },
+                protocol=pickle.HIGHEST_PROTOCOL,
+                file=handle
+            )
 
-    def load(self, path):
-        with open(path, "rb") as infile:
-            data = pickle.load(infile)
+        return cube_path
 
-            self.max_words = data["max_words"]
-            self.min_count = data["min_count"]
-            self.ids = data["ids"]
+    @classmethod
+    def load(cls, path):
+        with open(path, "rb") as handle:
+            data = pickle.load(handle)
 
-    def fit(self, texts):
+        vocab = cls(data["max_words"], data["min_count"])
+        vocab.ids = data["ids"]
+
+        return vocab
+
+    def train(self, texts):
         words_counts = defaultdict(int)
 
         for text in tqdm.tqdm(texts):

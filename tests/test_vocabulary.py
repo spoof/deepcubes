@@ -6,4 +6,4 @@ class TestVocabulary(unittest.TestCase):
 
     def test_vocabulary(self):
         vocab = Vocabulary()
-        vocab.fit(["hello", "yes"])
+        vocab.train(["hello", "yes"])
