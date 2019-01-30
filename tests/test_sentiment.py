@@ -5,7 +5,10 @@ from deepcubes.models import Sentiment
 class TestSentiment(unittest.TestCase):
 
     def test_sentiment(self):
-        sentiment = Sentiment()
+        sentiment = Sentiment(5, 5)
+        sentiment("бомба")
+
+        """
 
         sentiment.train(
             [["positive"], ["negative"]],
@@ -36,3 +39,5 @@ class TestSentiment(unittest.TestCase):
             sentiment("классн"),
             [("positive", 1), ("negative", 0)]
         )
+
+        """

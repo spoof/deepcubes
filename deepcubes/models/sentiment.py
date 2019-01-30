@@ -2,9 +2,10 @@ import json
 import os
 
 from torch import nn
+import torch
 
 from ..cubes import TrainableCube, PredictorCube
-from ..cubes import EditDistanceMatcher
+from ..cubes import Vocabulary
 
 
 class SentimentNN(nn.Module):
@@ -33,16 +34,29 @@ class SentimentNN(nn.Module):
 
 class Sentiment(TrainableCube, PredictorCube):
 
-    MAX_EDIT_DISTANCE = 1
+    def __init__(self, embed_size, hidden_size):
+        self.vocab = Vocabulary()
 
-    def __init__(self):
-        self.classifier = EditDistanceMatcher()
+        self.embed_size = embed_size
+        self.hidden_size = hidden_size
+
+        self.num_layers = 1
+        self.num_classes = 2
+
+        self.classifier = SentimentNN(
+            self.vocab.size(),
+            self.embed_size,
+            self.hidden_size,
+            self.num_layers,
+            self.num_classes
+        )
 
     def forward(self, query):
-        return self.classifier(query)
+        return self.classifier(torch.LongTensor(
+            self.vocab.get_matrix([query])))
 
     def train(self, labels, texts):
-        self.classifier.train(labels, texts, self.MAX_EDIT_DISTANCE)
+        self.vocab.train(texts)
 
     def save(self, path, name='intent_classifier.cube'):
         super().save(path, name)
@@ -64,6 +78,6 @@ class Sentiment(TrainableCube, PredictorCube):
             cube_params = json.loads(f.read())
 
         model = cls()
-        model.classifier = EditDistanceMatcher.load(cube_params["classifier"])
+        model.classifier = SentimentNN.load(cube_params["classifier"])
 
         return model
