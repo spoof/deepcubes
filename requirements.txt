@@ -6,3 +6,4 @@ numpy
 editdistance
 flask
 torch
+tqdm
