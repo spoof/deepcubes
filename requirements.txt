@@ -5,3 +5,4 @@ pymystem3
 numpy
 editdistance
 flask
+torch
