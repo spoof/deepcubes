@@ -14,6 +14,9 @@ class Vocabulary(TrainableCube):
         self.min_count = min_count
         self.ids = {}
 
+        # TODO: switch to correct tokenizer class
+        self.tokenizer = lambda x: x.lower().split()
+
         self._reset_ids()
 
     def _reset_ids(self):
@@ -55,7 +58,7 @@ class Vocabulary(TrainableCube):
         words_counts = defaultdict(int)
 
         for text in tqdm.tqdm(texts):
-            for word in text.split(" "):
+            for word in self.tokenizer(text):
                 words_counts[word] += 1
 
         self._reset_ids()
@@ -80,7 +83,7 @@ class Vocabulary(TrainableCube):
             return self.ids["_UNK_"]
 
     def get_matrix(self, texts, max_len=None):
-        words = [text.split() for text in texts]
+        words = [self.tokenizer(text) for text in texts]
 
         mtx_len = max([len(w) for w in words])
         if max_len and max_len < mtx_len:
