@@ -26,8 +26,8 @@ sentences = generic_sentences + config_sentences
 tokenizer = Tokenizer()
 
 
-def prepare_embedder(mode):
-    tokenizer.train(mode)
+def prepare_embedder(mode, letter_limit):
+    tokenizer.train(mode, letter_limit)
     tok_sentenses = list()
 
     for phrase in sentences:
@@ -41,6 +41,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Prepare embedder fo tests')
     parser.add_argument('-m', '--mode',
                         help='Mode of tokenizer', default='lem')
+    parser.add_argument('-l', '--letter_limit',
+                        help='Mode of tokenizer', type=int, default=0)
     args = parser.parse_args()
 
-    prepare_embedder(args.mode)
+    prepare_embedder(args.mode, args.letter_limit)

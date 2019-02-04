@@ -50,7 +50,7 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
         predict_resp_data = self._get_predict_response(
             query='график',
             model_id=model_id,
-            labels=[1, 2, 3]
+            labels='1 2 3'
         )
         labels, probs = self._dicts_to_values_list(predict_resp_data)
 
@@ -70,7 +70,7 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
         self.test_models_list.append(model_id)
 
         predict_resp_data = self._get_predict_response(
-            query='нет',
+            query='неет',
             model_id=model_id,
             labels=[]
         )
@@ -86,7 +86,7 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
         predict_resp_data = self._get_predict_response(
             query='',
             model_id=model_id,
-            labels=['yes', 'no']
+            labels='yes no'
         )
         labels, probs = self._dicts_to_values_list(predict_resp_data)
 
@@ -98,9 +98,9 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
         self.assertEqual(3, len(labels))
 
         predict_resp_data = self._get_predict_response(
-            query='НЕТ!',
+            query='НЕЕТ!',
             model_id=model_id,
-            labels=['no', 'no', 'yes', 'no']
+            labels='no no yes no'
         )
         labels, probs = self._dicts_to_values_list(predict_resp_data)
 

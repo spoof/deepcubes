@@ -45,10 +45,10 @@ if 'http' in EMB_PATH:
 else:
     emb_type = 'Embedder'
 
-GENETIC_DATA_PATH = json.loads(
-    config_parser.get('live-dialog-service', 'GENETIC_DATA_PATH')
+GENERIC_DATA_PATH = json.loads(
+    config_parser.get('live-dialog-service', 'GENERIC_DATA_PATH')
 )
-logger.info("Generic data path: {} ...".format(MODEL_STORAGE))
+logger.info("Generic data path: {} ...".format(GENERIC_DATA_PATH))
 
 models = dict()
 
@@ -143,9 +143,9 @@ def predict():
             return jsonify({"message": "Please send correct json object"})
 
         if 'labels' in request.args:
-            labels = request.args.getlist('labels')
+            labels = request.args['labels']
         elif 'labels' in request.form:
-            labels = request.form.getlist('labels')
+            labels = request.form['labels']
         else:
             labels = list()
 
@@ -230,7 +230,7 @@ def train():
 
         logger.info("`{}` tokenizer mode set".format(tokenizer_mode))
 
-        live_dialog_model = VeraLiveDialog(embedder, GENETIC_DATA_PATH)
+        live_dialog_model = VeraLiveDialog(embedder, GENERIC_DATA_PATH)
         live_dialog_model.train(config)
 
         new_model_id = get_new_model_id(MODEL_STORAGE)
@@ -267,4 +267,4 @@ if __name__ == "__main__":
         if not loading:
             print("Model with id {} not found".format(model_id))
 
-    app.run(host="0.0.0.0", port=3339, debug=False)
+    app.run(host="0.0.0.0", port=3335, debug=False)
