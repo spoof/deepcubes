@@ -4,8 +4,10 @@ import os
 from torch import nn
 import torch
 
-from ..cubes import TrainableCube, PredictorCube
+from ..cubes import TrainableCube
 from ..cubes import Vocabulary
+
+from ..utils.functions import softmax
 
 
 class SentimentNN(nn.Module):
@@ -32,7 +34,7 @@ class SentimentNN(nn.Module):
         return out
 
 
-class Sentiment(TrainableCube, PredictorCube):
+class Sentiment(TrainableCube):
 
     def __init__(self, embed_size, hidden_size):
         self.vocab = Vocabulary()
@@ -52,8 +54,15 @@ class Sentiment(TrainableCube, PredictorCube):
         )
 
     def forward(self, query):
-        return self.classifier(torch.LongTensor(
+        out = self.classifier(torch.LongTensor(
             self.vocab.get_matrix([query])))
+
+        # TODO: think about
+        # return proba of first class
+        out = out.cpu().data.numpy()[0]
+        probas = softmax(out)
+
+        return probas[1]
 
     def train(self, labels, texts):
         # TODO: implement
@@ -79,6 +88,15 @@ class Sentiment(TrainableCube, PredictorCube):
 
         return self.cube_path
 
+    def _reset_classifier(self):
+        self.classifier = SentimentNN(
+            self.vocab.size(),
+            self.embed_size,
+            self.hidden_size,
+            self.num_layers,
+            self.num_classes
+        )
+
     @classmethod
     def load(cls, path):
         with open(path, 'r') as f:
@@ -86,6 +104,7 @@ class Sentiment(TrainableCube, PredictorCube):
 
         model = cls(cube_params["embed_size"], cube_params["hidden_size"])
         model.vocab = Vocabulary.load(cube_params["vocab"])
+        model._reset_classifier()
         model.classifier.load_state_dict(torch.load(cube_params['nn_params']))
 
         return model
