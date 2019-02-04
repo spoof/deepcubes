@@ -56,14 +56,21 @@ class Sentiment(TrainableCube, PredictorCube):
             self.vocab.get_matrix([query])))
 
     def train(self, labels, texts):
-        self.vocab.train(texts)
+        # TODO: implement
+        raise NotImplementedError
 
     def save(self, path, name='intent_classifier.cube'):
         super().save(path, name)
 
+        params_path = os.path.join(path, "nn_params.torch")
+        torch.save(self.classifier.state_dict(), params_path)
+
         cube_params = {
             'cube': self.__class__.__name__,
-            'classifier': self.classifier.save(path=path),
+            'embed_size': self.embed_size,
+            'hidden_size': self.hidden_size,
+            'vocab': self.vocab.save(path=path),
+            'nn_params': params_path,
         }
 
         self.cube_path = os.path.join(path, name)
@@ -77,7 +84,8 @@ class Sentiment(TrainableCube, PredictorCube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        model = cls()
-        model.classifier = SentimentNN.load(cube_params["classifier"])
+        model = cls(cube_params["embed_size"], cube_params["hidden_size"])
+        model.vocab = Vocabulary.load(cube_params["vocab"])
+        model.classifier.load_state_dict(torch.load(cube_params['nn_params']))
 
         return model
