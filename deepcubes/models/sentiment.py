@@ -36,8 +36,11 @@ class SentimentNN(nn.Module):
 
 class Sentiment(TrainableCube):
 
-    def __init__(self, embed_size, hidden_size):
+    def __init__(self, embed_size, hidden_size, vocab_size=None):
         self.vocab = Vocabulary()
+
+        if vocab_size is None:
+            vocab_size = self.vocab.size()
 
         self.embed_size = embed_size
         self.hidden_size = hidden_size
@@ -46,7 +49,7 @@ class Sentiment(TrainableCube):
         self.num_classes = 2
 
         self.classifier = SentimentNN(
-            self.vocab.size(),
+            vocab_size,
             self.embed_size,
             self.hidden_size,
             self.num_layers,
@@ -88,23 +91,17 @@ class Sentiment(TrainableCube):
 
         return self.cube_path
 
-    def _reset_classifier(self):
-        self.classifier = SentimentNN(
-            self.vocab.size(),
-            self.embed_size,
-            self.hidden_size,
-            self.num_layers,
-            self.num_classes
-        )
-
     @classmethod
     def load(cls, path):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        model = cls(cube_params["embed_size"], cube_params["hidden_size"])
-        model.vocab = Vocabulary.load(cube_params["vocab"])
-        model._reset_classifier()
+        vocab = Vocabulary.load(cube_params["vocab"])
+        model = cls(cube_params["embed_size"],
+                    cube_params["hidden_size"],
+                    vocab.size())
+
+        model.vocab = vocab
         model.classifier.load_state_dict(torch.load(cube_params['nn_params']))
 
         return model
