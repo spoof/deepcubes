@@ -2,7 +2,7 @@ import json
 import os
 
 from ..cubes import TrainableCube, PredictorCube
-from ..cubes import LogRegClassifier, NetworkEmbedder, Embedder
+from ..cubes import LogRegClassifier
 from ..cubes import Tokenizer, Pipe
 
 
@@ -34,8 +34,6 @@ class LogisticIntentClassifier(TrainableCube, PredictorCube):
         cube_params = {
             'cube': self.__class__.__name__,
             'tokenizer': self.tokenizer.save(path=path),
-            'embedder': self.embedder.save(path=path),
-            'emb_type': self.embedder.__class__.__name__,
             'log_reg_classifier': self.log_reg_classifier.save(path=path),
         }
 
@@ -46,19 +44,13 @@ class LogisticIntentClassifier(TrainableCube, PredictorCube):
         return self.cube_path
 
     @classmethod
-    def load(cls, path):
+    def load(cls, path, embedder):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        model = cls(None)
+        model = LogisticIntentClassifier(embedder)
         model.tokenizer = Tokenizer.load(cube_params['tokenizer'])
-        if cube_params['emb_type'] == 'NetworkEmbedder':
-            model.embedder = NetworkEmbedder.load(cube_params['embedder'])
-        elif cube_params['emb_type'] == 'Embedder':
-            model.embedder = Embedder.load(cube_params['embedder'])
-        else:
-            # TODO raise exception
-            pass
+
         model.vectorizer = Pipe([model.tokenizer, model.embedder])
         model.log_reg_classifier = LogRegClassifier.load(
             cube_params['log_reg_classifier']

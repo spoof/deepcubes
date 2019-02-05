@@ -11,7 +11,6 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
     """Live dialog model"""
 
     def __init__(self, major_clf, minor_clf):
-
         self.major_clf = major_clf
         self.minor_clf = minor_clf
 
@@ -34,7 +33,6 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
             self.major_to_minors[major].append(minor)
 
     def forward(self, query):
-
         major_intents = self.major_clf(query)
         minor_intents = self.minor_clf(query)
 
@@ -87,16 +85,16 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
         return self.cube_path
 
     @classmethod
-    def load(cls, path):
+    def load(cls, path, embedder):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        major_clf = LogisticIntentClassifier.load(
-            cube_params['major_clf']
-        )
-        minor_clf = LogisticIntentClassifier.load(
-            cube_params['minor_clf']
-        )
+        major_clf = LogisticIntentClassifier.load(cube_params['major_clf'],
+                                                  embedder)
+
+        minor_clf = LogisticIntentClassifier.load(cube_params['minor_clf'],
+                                                  embedder)
+
         model = cls(major_clf, minor_clf)
         model.train(cube_params['groups_data_path'])
         model.cube_path = path

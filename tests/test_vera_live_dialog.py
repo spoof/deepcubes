@@ -2,7 +2,7 @@ import unittest
 import os
 import shutil
 
-from deepcubes.cubes import Embedder
+from deepcubes.embedders import Embedder
 from deepcubes.models import VeraLiveDialog
 
 

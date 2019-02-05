@@ -2,7 +2,8 @@ import unittest
 import numpy as np
 import os
 
-from deepcubes.cubes import Tokenizer, Embedder
+from deepcubes.cubes import Tokenizer
+from deepcubes.embedders import Embedder
 
 
 class TestEmbedder(unittest.TestCase):
@@ -65,12 +66,3 @@ class TestEmbedder(unittest.TestCase):
             -0.030646920857179794,
             1
         )
-
-    def test_embedder_loading(self):
-        name = 'embedder.cube'
-        self.embedder.save(name=name, path=self.data_dir)
-
-        new_embedder = Embedder.load(path=os.path.join(self.data_dir, name))
-        self.assertEqual(self.embedder.path, new_embedder.path)
-
-        os.remove(os.path.join(self.data_dir, name))

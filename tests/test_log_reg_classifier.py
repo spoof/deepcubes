@@ -2,7 +2,8 @@ import unittest
 import os
 import json
 
-from deepcubes.cubes import Embedder, Tokenizer, LogRegClassifier
+from deepcubes.cubes import Tokenizer, LogRegClassifier
+from deepcubes.embedders import Embedder
 
 
 class TestLogRegClassifier(unittest.TestCase):
