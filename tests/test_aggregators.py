@@ -1,6 +1,7 @@
 import unittest
 from deepcubes.cubes import Max, PatternMatcher, EditDistanceMatcher, Pipe
-from deepcubes.cubes import Embedder, Tokenizer
+from deepcubes.cubes import Tokenizer
+from deepcubes.embedders import Embedder
 import numpy as np
 
 

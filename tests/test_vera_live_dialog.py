@@ -39,7 +39,6 @@ class TestVeraLiveDialog(unittest.TestCase):
 
     def test_vera_dialog(self):
         vera = VeraLiveDialog(self.embedder, self.generic_data_path)
-
         vera.train(self.config)
 
         # TODO: near equal checking
@@ -88,18 +87,13 @@ class TestVeraLiveDialog(unittest.TestCase):
         model_path = os.path.join(self.data_dir, str(model_id))
 
         new_path = vera.save(name=name, path=model_path)
-        new_vera = VeraLiveDialog.load(path=new_path)
+        new_vera = VeraLiveDialog.load(new_path, self.embedder)
 
         self.assertEqual(vera.config, new_vera.config)
 
         self.assertEqual(
             vera.intent_classifier.tokenizer.mode,
             new_vera.intent_classifier.tokenizer.mode
-        )
-
-        self.assertEqual(
-            vera.intent_classifier.embedder.path,
-            new_vera.intent_classifier.embedder.path
         )
 
         self.assertEqual(
