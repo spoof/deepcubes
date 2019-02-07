@@ -254,4 +254,4 @@ if __name__ == "__main__":
         else:
             models[model_id] = model
 
-    app.run(host="0.0.0.0", port=3343, debug=False)
+    app.run(host="0.0.0.0", port=3335, debug=False)

@@ -28,7 +28,6 @@ class NetworkEmbedder(Embedder):
 
         params = {
             'tokens': tokens,
-            'mode': self.mode,
         }
 
         response = requests.get(self.url, params)
