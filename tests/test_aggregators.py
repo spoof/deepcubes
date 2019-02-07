@@ -1,7 +1,7 @@
 import unittest
 from deepcubes.cubes import Max, PatternMatcher, EditDistanceMatcher, Pipe
 from deepcubes.cubes import Tokenizer
-from deepcubes.embedders import Embedder
+from deepcubes.embedders import LocalEmbedder
 import numpy as np
 
 
@@ -52,7 +52,7 @@ class TestAggregators(unittest.TestCase):
         tokenizer.train('lem')
 
         emb_path = 'tests/data/test_embeds.kv'
-        embedder = Embedder(emb_path)
+        embedder = LocalEmbedder(emb_path)
 
         pipe = Pipe([tokenizer, embedder])
 

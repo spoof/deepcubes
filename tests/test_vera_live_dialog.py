@@ -2,15 +2,16 @@ import unittest
 import os
 import shutil
 
-from deepcubes.embedders import Embedder
+from deepcubes.embedders import LocalEmbedder
+from deepcubes.embedders import EmbedderFactory
 from deepcubes.models import VeraLiveDialog
 
 
 class TestVeraLiveDialog(unittest.TestCase):
 
     def setUp(self):
-        emb_path = 'tests/data/test_embeds.kv'
-        self.embedder = Embedder(emb_path)
+        self.embedder = LocalEmbedder('tests/data/test_embeds.kv')
+        self.embedder_factory = EmbedderFactory("tests/data/")
         self.data_dir = 'tests/data'
 
         self.generic_data_path = 'tests/data/generic.txt'
@@ -87,7 +88,7 @@ class TestVeraLiveDialog(unittest.TestCase):
         model_path = os.path.join(self.data_dir, str(model_id))
 
         new_path = vera.save(name=name, path=model_path)
-        new_vera = VeraLiveDialog.load(new_path, self.embedder)
+        new_vera = VeraLiveDialog.load(new_path, self.embedder_factory)
 
         self.assertEqual(vera.config, new_vera.config)
 

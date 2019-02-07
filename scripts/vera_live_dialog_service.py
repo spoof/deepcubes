@@ -7,7 +7,9 @@ import logging
 import argparse
 import configparser
 
-from deepcubes.embedders import Embedder, NetworkEmbedder
+from deepcubes.embedders import LocalEmbedder, NetworkEmbedder
+from deepcubes.embedders import EmbedderFactory
+
 from deepcubes.models import VeraLiveDialog
 
 logger = logging.getLogger("LiveDialogService")

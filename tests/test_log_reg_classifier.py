@@ -3,14 +3,14 @@ import os
 import json
 
 from deepcubes.cubes import Tokenizer, LogRegClassifier
-from deepcubes.embedders import Embedder
+from deepcubes.embedders import LocalEmbedder
 
 
 class TestLogRegClassifier(unittest.TestCase):
 
     def setUp(self):
         self.tokenizer = Tokenizer()
-        self.embedder = Embedder('tests/data/test_embeds.kv')
+        self.embedder = LocalEmbedder('tests/data/test_embeds.kv')
         self.classifier = LogRegClassifier()
 
         self.tokenizer.train('lem')
