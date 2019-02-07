@@ -5,6 +5,8 @@ import json
 class NetworkEmbedder(object):
     """Network embedder"""
 
+    EMPTY_STRING = ""
+
     def __init__(self, url):
         self.url = url
 
@@ -12,6 +14,10 @@ class NetworkEmbedder(object):
         return self.forward(*input)
 
     def forward(self, tokens):
+        # TODO: fix this not idiomatic way to process empty tokens
+        if not len(tokens):
+            tokens = [self.EMPTY_STRING]
+
         params = {
             'tokens': tokens,
             'mode': self.mode,
