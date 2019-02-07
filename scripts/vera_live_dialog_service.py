@@ -14,36 +14,27 @@ logger = logging.getLogger("LiveDialogService")
 logger.setLevel(logging.INFO)
 
 # create the logging file handler
-fh = logging.FileHandler("scripts/logs/live_dialog_service.log")
-formatter = logging.Formatter(
-    '%(asctime)s | %(levelname)s | %(message)s'
-)
-fh.setFormatter(formatter)
-logger.addHandler(fh)
+handler = logging.FileHandler("scripts/logs/live_dialog_service.log")
+formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 logger.info("Started Live Dialog Server...")
 
+# TODO: move to script argument
 if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']
 else:
     logger.warning('Config file not found. Test config is used...')
-    config_file_path = 'tests/data/test.conf'
+    config_file_path = 'tests/data/vera_live_dialog.conf'
 
-config_parser = configparser.RawConfigParser()
+config_parser = configparser.ConfigParser()
 config_parser.read(config_file_path)
 
 MODEL_STORAGE = json.loads(
     config_parser.get('live-dialog-service', 'MODEL_STORAGE')
 )
 logger.info("Model storage: {} ...".format(MODEL_STORAGE))
-
-EMB_PATH = json.loads(config_parser.get('live-dialog-service', 'EMB_PATH'))
-logger.info("Embedder path: {} ...".format(MODEL_STORAGE))
-
-if 'http' in EMB_PATH:
-    emb_type = 'NetworkEmbedder'
-else:
-    emb_type = 'Embedder'
 
 GENERIC_DATA_PATH = json.loads(
     config_parser.get('live-dialog-service', 'GENERIC_DATA_PATH')
@@ -52,10 +43,16 @@ logger.info("Generic data path: {} ...".format(GENERIC_DATA_PATH))
 
 models = dict()
 
-LANG_TO_EMB_PATH = {lang: json.loads(path)
+def get_embedder(path):
+    if "http" in path:
+        return NetworkEmbedder(path)
+    else:
+        return Embedder(path)
+
+LANG_TO_EMBEDDER = {lang: get_embedder(path)
                     for lang, path in config_parser['embedder'].items()}
 
-LANG_TO_TOK_MODE = {lang: json.loads(mode)
+LANG_TO_TOK_MODE = {lang: mode
                     for lang, mode in config_parser['tokenizer'].items()}
 
 logger.info("Prepare Flask app...")
@@ -69,16 +66,11 @@ def load_model(model_id):
     )
 
     if not os.path.isfile(model_path):
-        logger.error(
-            "Model {} not found".format(model_id)
-        )
-        return False
+        logger.error("Model {} not found".format(model_id))
+        return None
 
-    if model_id not in models:
-        model = VeraLiveDialog.load(model_path)
-        models[model_id] = model
-
-    return True
+    model = VeraLiveDialog.load(model_path)
+    return model
 
 
 def get_new_model_id(path):
@@ -124,15 +116,15 @@ def predict():
         if model_id in models:
             model = models[model_id]
         else:
-            loading = load_model(model_id)
+            model = load_model(model_id)
 
-            if loading:
-                model = models[model_id]
-            else:
+            if model is None:
                 return jsonify({
                     "message": "Model with model_id {} not found".format(
                         model_id),
                 })
+            else:
+                models[model_id] = model
 
         if 'query' in request.args:
             query = request.args['query']
@@ -172,7 +164,9 @@ def predict():
                 'labels': labels,
                 'answer': output,
             }
+
             print(json.dumps(data), file=out)
+
         logger.info("Sending response...")
 
         return jsonify(output)
@@ -262,9 +256,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     for model_id in args.model_id_list:
-        loading = load_model(model_id)
+        model = load_model(model_id)
 
-        if not loading:
+        if model is None:
             print("Model with id {} not found".format(model_id))
+        else:
+            models[model_id] = model
 
     app.run(host="0.0.0.0", port=3335, debug=False)

@@ -4,7 +4,7 @@ import logging
 import sys
 import os
 
-from deepcubes.embedders import Embedder
+from deepcubes.embedders import LocalEmbedder
 
 logger = logging.getLogger("EmbedderService")
 logger.setLevel(logging.INFO)
@@ -22,7 +22,7 @@ if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']
 else:
     logger.warning('Config file not found. Test config is used...')
-    config_file_path = 'tests/data/embedder_service.conf'
+    config_file_path = 'tests/data/embedder_service/embedder_service.conf'
 
 config_parser = configparser.ConfigParser()
 config_parser.read(config_file_path)
@@ -32,7 +32,7 @@ logger.info("Load embedders: {} and paths: {} ...".format(
     list(config_parser['embedders'].values())
 ))
 
-embedders_dict = {name: Embedder(path)
+embedders_dict = {name: LocalEmbedder(path)
                   for name, path in config_parser['embedders'].items()}
 
 logger.info("Prepare Flask app...")

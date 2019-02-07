@@ -8,17 +8,16 @@ import argparse
 import configparser
 
 from deepcubes.models import LogisticIntentClassifier
+from deepcubes.embedders import EmbedderFactory
 
 logger = logging.getLogger("ClassifierService")
 logger.setLevel(logging.INFO)
 
 # create the logging file handler
-fh = logging.FileHandler("scripts/logs/classifier_service.log")
-formatter = logging.Formatter(
-    '%(asctime)s | %(levelname)s | %(message)s'
-)
-fh.setFormatter(formatter)
-logger.addHandler(fh)
+handler = logging.FileHandler("scripts/logs/classifier_service.log")
+formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 logger.info("Started Intent Classifier Server...")
 
@@ -26,17 +25,23 @@ if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']
 else:
     logger.warning('Config file not found. Test config is used...')
-    config_file_path = 'tests/data/test.conf'
+    config_file_path = 'tests/data/classifier_service/classifier_serivce.conf'
 
 logger.info("Read config file {} ...".format(config_file_path))
 config_parser = configparser.RawConfigParser()
 config_parser.read(config_file_path)
 
+MODEL_STORAGE = config_parser.get('classifier-service', 'MODEL_STORAGE')
 
-MODEL_STORAGE = json.loads(
-    config_parser.get('classifier-service', 'MODEL_STORAGE')
-)
 logger.info("Model storage: {} ...".format(MODEL_STORAGE))
+
+EMBEDDER_PATH = config_parser.get('classifier-service', 'EMBEDDER_PATH')
+
+if 'http' in EMBEDDER_PATH:
+    embedder_factory = EmbedderFactory(network_url=EMBEDDER_PATH)
+else:
+    embedder_factory = EmbedderFactory(local_path=EMBEDDER_PATH)
+
 
 models = dict()
 
@@ -49,17 +54,14 @@ def load_model(model_id):
     model_path = os.path.join(
         MODEL_STORAGE, "{}/intent_classifier.cube".format(model_id)
     )
+
     if not os.path.isfile(model_path):
-        logger.error(
-            "Model {} not found".format(model_id)
-        )
-        return False
+        logger.error("Model {} not found".format(model_id))
+        return None
 
-    if model_id not in models:
-        model = LogisticIntentClassifier.load(model_path)
-        models[model_id] = model
+    model = LogisticIntentClassifier.load(model_path, embedder_factory)
 
-    return True
+    return model
 
 
 def get_new_model_id(path):
@@ -101,12 +103,14 @@ def predict():
             return jsonify({"message": "Please send correct json object"})
 
         logger.info("Received model id: {}".format(model_id))
+
         if model_id in models:
             model = models[model_id]
         else:
-            loading = load_model(model_id)
-            if loading:
-                model = models[model_id]
+            model = load_model(model_id)
+
+            if model is not None:
+                models[model_id] = model
             else:
                 return jsonify({
                     "message": "Model with model_id {} not found".format(
@@ -133,6 +137,7 @@ def predict():
                 "threshold": 0.3,
                 "accuracy_score": None
             })
+
         logger.info("Top predicted label: {}".format(output[0]['answer']))
         logger.info("Max probability: {}".format(output[0]['probability']))
 
@@ -143,7 +148,9 @@ def predict():
                 'query': query,
                 'answer': output,
             }
+
             print(json.dumps(data), file=out)
+
         logger.info("Sending response...")
         return jsonify(output)
 
@@ -162,7 +169,13 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
     for model_id in args.model_id_list:
-        loading = load_model(model_id)
+        model = load_model(model_id)
+
+        if model is not None:
+            models[model_id] = model
+        else:
+            print("Error while loading {} model_id".format(model_id))
 
     app.run(host="0.0.0.0", port=3337, debug=False)

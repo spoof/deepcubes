@@ -174,7 +174,7 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         return self.cube_path
 
     @classmethod
-    def load(cls, path, embedder):
+    def load(cls, path, embedder_factory):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
@@ -192,7 +192,7 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         }
 
         model.intent_classifier = LogisticIntentClassifier.load(
-            cube_params['intent_classifier'], embedder
+            cube_params['intent_classifier'], embedder_factory
         )
         model.cube_path = path
 

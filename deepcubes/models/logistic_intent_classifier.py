@@ -35,6 +35,7 @@ class LogisticIntentClassifier(TrainableCube, PredictorCube):
             'cube': self.__class__.__name__,
             'tokenizer': self.tokenizer.save(path=path),
             'log_reg_classifier': self.log_reg_classifier.save(path=path),
+            'embedder': self.embedder.save(path=path)
         }
 
         self.cube_path = os.path.join(path, name)
@@ -44,11 +45,12 @@ class LogisticIntentClassifier(TrainableCube, PredictorCube):
         return self.cube_path
 
     @classmethod
-    def load(cls, path, embedder):
+    def load(cls, path, embedder_factory):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        model = LogisticIntentClassifier(embedder)
+        model = LogisticIntentClassifier(embedder_factory.load(
+            cube_params["embedder"]))
         model.tokenizer = Tokenizer.load(cube_params['tokenizer'])
 
         model.vectorizer = Pipe([model.tokenizer, model.embedder])

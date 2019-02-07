@@ -1,13 +1,21 @@
 import requests
 import json
+import os
+
+from ..embedders import Embedder
 
 
-class NetworkEmbedder(object):
+class NetworkEmbedder(Embedder):
     """Network embedder"""
 
     EMPTY_STRING = ""
 
-    def __init__(self, url):
+    def __init__(self, url, mode):
+        if not mode:
+            mode = os.path.basename(url)
+
+        super().__init__(mode)
+
         self.url = url
 
     def __call__(self, *input):
@@ -33,3 +41,11 @@ class NetworkEmbedder(object):
             return None
         else:
             return content['vector']
+
+    @classmethod
+    def load(cls, path, url):
+        with open(path, 'r') as f:
+            cube_params = json.loads(f.read())
+
+        network_embedder = cls(url, cube_params["mode"])
+        return network_embedder

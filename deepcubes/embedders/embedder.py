@@ -1,29 +1,28 @@
-from gensim.models import KeyedVectors
-import numpy as np
+from ..cubes import Cube
+
+import os
+import json
 
 
-class Embedder(object):
-    """Word embedder"""
+class Embedder(Cube):
 
-    def __init__(self, matrix_path):
-        self.matrix_path = matrix_path
-        self.model = KeyedVectors.load(matrix_path, mmap='r')
+    def __init__(self, mode):
+        self.mode = mode
 
-    def __call__(self, *input):
-        return self.forward(*input)
+    def save(self, path, name="embedder.cube"):
+        super().save(path, name)
 
-    def forward(self, tokens):
-        """Calculate vector for sentence as mean vector of all its words"""
+        cube_params = {
+            'cube': self.__class__.__name__,
+            'mode': self.mode
+        }
 
-        vector = np.zeros(self.model.vector_size)
-        words_in_model = 0
+        cube_path = os.path.join(path, name)
 
-        for word in tokens:
-            if word in self.model:
-                vector += self.model.get_vector(word)
-                words_in_model += 1
+        with open(cube_path, 'w') as out:
+            out.write(json.dumps(cube_params))
 
-        if words_in_model:
-            vector /= words_in_model
+        return cube_path
 
-        return vector
+    def load(self):
+        raise NotImplementedError

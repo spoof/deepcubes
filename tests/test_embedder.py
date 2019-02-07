@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 from deepcubes.cubes import Tokenizer
-from deepcubes.embedders import Embedder
+from deepcubes.embedders import LocalEmbedder
 
 
 class TestEmbedder(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestEmbedder(unittest.TestCase):
     def setUp(self):
         self.tokenizer = Tokenizer()
         self.emb_path = 'tests/data/test_embeds.kv'
-        self.embedder = Embedder(self.emb_path)
+        self.embedder = LocalEmbedder(self.emb_path)
         self.text_phrase = ' '.join([
             'компании',
             'Робот',
