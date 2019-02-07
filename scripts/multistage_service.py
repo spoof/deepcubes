@@ -1,24 +1,22 @@
 from flask import Flask, request, jsonify
 import os
 import sys
-import json
 import logging
 import argparse
 import configparser
 
 from deepcubes.models import LogisticIntentClassifier
 from deepcubes.models import MultistagIntentClassifier
+from deepcubes.embedders import EmbedderFactory
 
 logger = logging.getLogger("MultistageClassifierService")
 logger.setLevel(logging.INFO)
 
 # create the logging file handler
-fh = logging.FileHandler("scripts/logs/multistage_classifier_service.log")
-formatter = logging.Formatter(
-    '%(asctime)s | %(levelname)s | %(message)s'
-)
-fh.setFormatter(formatter)
-logger.addHandler(fh)
+handle = logging.FileHandler("scripts/logs/multistage_classifier_service.log")
+formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+handle.setFormatter(formatter)
+logger.addHandler(handle)
 
 logger.info("Started Multistage Classifier Server...")
 
@@ -26,30 +24,35 @@ if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']
 else:
     logger.warning('Config file not found. Test config is used...')
-    config_file_path = 'tests/data/test.conf'
+    config_file_path = (
+        'tests/data/multistage_classifier/multistage_classifier.conf'
+    )
 
 logger.info("Read config file {} ...".format(config_file_path))
+
 config_parser = configparser.RawConfigParser()
 config_parser.read(config_file_path)
 
+MODEL_STORAGE = config_parser.get('multistage-classifier-service',
+                                  'MODEL_STORAGE')
 
-MODEL_STORAGE = json.loads(
-    config_parser.get('multistage-classifier-service', 'MODEL_STORAGE')
-)
 logger.info("Model storage: {} ...".format(MODEL_STORAGE))
 
-MAJOR_MODEL_ID = json.loads(
-    config_parser.get('multistage-classifier-service', 'MAJOR_MODEL_ID')
-)
+MINOR_MODEL_ID = config_parser.get('multistage-classifier-service',
+                                   'MINOR_MODEL_ID')
 
-MINOR_MODEL_ID = json.loads(
-    config_parser.get('multistage-classifier-service', 'MINOR_MODEL_ID')
-)
+MAJOR_MODEL_ID = config_parser.get('multistage-classifier-service',
+                                   'MAJOR_MODEL_ID')
 
-GROUPS_DATA_PATH = json.loads(
-    config_parser.get('multistage-classifier-service', 'GROUPS_DATA_PATH')
-)
+GROUPS_DATA_PATH = config_parser.get('multistage-classifier-service',
+                                     'GROUPS_DATA_PATH')
+
+EMBEDDER_PATH = config_parser.get('multistage-classifier-service',
+                                  'EMBEDDER_PATH')
+
 logger.info("Groups csv file: {} ...".format(GROUPS_DATA_PATH))
+
+embedder_factory = EmbedderFactory(EMBEDDER_PATH)
 
 logger.info("Prepare Flask app...")
 app = Flask(__name__)
@@ -57,27 +60,30 @@ app = Flask(__name__)
 
 def load_model(major_model_id, minor_model_id, groups_data_path):
     logger.info("Loading major model {} ...".format(major_model_id))
+
     major_model_path = os.path.join(
         MODEL_STORAGE, "{}/intent_classifier.cube".format(major_model_id)
     )
+
     if not os.path.isfile(major_model_path):
-        logger.error(
-            "Model {} not found".format(major_model_id)
-        )
-        return False
+        logger.error("Model {} not found".format(major_model_id))
+        return None
 
     logger.info("Loading minor model {} ...".format(minor_model_id))
+
     minor_model_path = os.path.join(
         MODEL_STORAGE, "{}/intent_classifier.cube".format(minor_model_id)
     )
-    if not os.path.isfile(minor_model_path):
-        logger.error(
-            "Model {} not found".format(minor_model_id)
-        )
-        return False
 
-    major_model = LogisticIntentClassifier.load(major_model_path)
-    minor_model = LogisticIntentClassifier.load(minor_model_path)
+    if not os.path.isfile(minor_model_path):
+        logger.error("Model {} not found".format(minor_model_id))
+        return None
+
+    major_model = LogisticIntentClassifier.load(major_model_path,
+                                                embedder_factory)
+    minor_model = LogisticIntentClassifier.load(minor_model_path,
+                                                embedder_factory)
+
     multistage_model = MultistagIntentClassifier(major_model, minor_model)
     multistage_model.train(groups_data_path)
 
@@ -118,9 +124,10 @@ def predict():
             "threshold": None,
             "accuracy_score": None
         }]
-        logger.info("Top predicted label: {}".format(answer))
 
+        logger.info("Top predicted label: {}".format(answer))
         logger.info("Sending response...")
+
         return jsonify(output)
 
     except Exception:
@@ -151,7 +158,8 @@ if __name__ == "__main__":
     multistage_model = load_model(
         args.major_model_id, args.minor_model_id, args.groups_data_path
     )
+
     if multistage_model:
-        app.run(host="0.0.0.0", port=3339, debug=False)
+        app.run(host="0.0.0.0", port=3349, debug=False)
     else:
         logger.error("Failed to download models")

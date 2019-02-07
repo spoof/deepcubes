@@ -1,5 +1,4 @@
 import os
-import json
 from enum import Enum
 
 from ..embedders import LocalEmbedder, NetworkEmbedder

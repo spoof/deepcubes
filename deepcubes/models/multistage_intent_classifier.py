@@ -85,15 +85,15 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
         return self.cube_path
 
     @classmethod
-    def load(cls, path, embedder):
+    def load(cls, path, embedder_factory):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
         major_clf = LogisticIntentClassifier.load(cube_params['major_clf'],
-                                                  embedder)
+                                                  embedder_factory)
 
         minor_clf = LogisticIntentClassifier.load(cube_params['minor_clf'],
-                                                  embedder)
+                                                  embedder_factory)
 
         model = cls(major_clf, minor_clf)
         model.train(cube_params['groups_data_path'])
