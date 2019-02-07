@@ -5,12 +5,17 @@ from enum import Enum
 from ..embedders import LocalEmbedder, NetworkEmbedder
 
 
+class EmbedderFactoryABC(object):
+    def create(self, mode):
+        raise NotImplementedError
+
+
 class FactoryType(Enum):
     LOCAL = 0
     NETWORK = 1
 
 
-class EmbedderFactory(object):
+class EmbedderFactory(EmbedderFactoryABC):
 
     def __init__(self, path):
         # TODO: need more sophisticated url checker
@@ -32,14 +37,3 @@ class EmbedderFactory(object):
             return NetworkEmbedder(self._get_full_path(mode), mode)
         else:
             return LocalEmbedder(self._get_full_path(mode), mode)
-
-    def load(self, cube_path):
-        with open(cube_path, 'r') as f:
-            cube_params = json.loads(f.read())
-
-        mode = cube_params["mode"]
-
-        if self.factory_type == FactoryType.LOCAL:
-            return LocalEmbedder.load(cube_path, self._get_full_path(mode))
-        else:
-            return NetworkEmbedder.load(cube_path, self._get_full_url(mode))

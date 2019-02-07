@@ -1,5 +1,6 @@
 from ..cubes import Cube
 
+from typing import List
 import os
 import json
 
@@ -23,6 +24,9 @@ class Embedder(Cube):
             out.write(json.dumps(cube_params))
 
         return cube_path
+
+    def forward(self, tokens) -> List[float]:
+        raise NotImplementedError
 
     def load(self):
         raise NotImplementedError

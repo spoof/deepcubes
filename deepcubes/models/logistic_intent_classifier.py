@@ -49,8 +49,12 @@ class LogisticIntentClassifier(TrainableCube, PredictorCube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        model = LogisticIntentClassifier(embedder_factory.load(
-            cube_params["embedder"]))
+        # get embedder mode
+        with open(cube_params["embedder"], 'r') as f:
+            embedder_params = json.loads(f.read())
+
+        embedder = embedder_factory.create(embedder_params["mode"])
+        model = LogisticIntentClassifier(embedder)
         model.tokenizer = Tokenizer.load(cube_params['tokenizer'])
 
         model.vectorizer = Pipe([model.tokenizer, model.embedder])
