@@ -7,9 +7,7 @@ import logging
 import argparse
 import configparser
 
-from deepcubes.embedders import LocalEmbedder, NetworkEmbedder
 from deepcubes.embedders import EmbedderFactory
-
 from deepcubes.models import VeraLiveDialog
 
 logger = logging.getLogger("LiveDialogService")
@@ -28,34 +26,29 @@ if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']
 else:
     logger.warning('Config file not found. Test config is used...')
-    config_file_path = 'tests/data/vera_live_dialog.conf'
+    config_file_path = "tests/data/vera_live_dialog/vera_live_dialog.conf"
 
 config_parser = configparser.ConfigParser()
 config_parser.read(config_file_path)
 
-MODEL_STORAGE = json.loads(
-    config_parser.get('live-dialog-service', 'MODEL_STORAGE')
-)
+MODEL_STORAGE = config_parser.get('live-dialog-service', 'MODEL_STORAGE')
 logger.info("Model storage: {} ...".format(MODEL_STORAGE))
 
-GENERIC_DATA_PATH = json.loads(
-    config_parser.get('live-dialog-service', 'GENERIC_DATA_PATH')
-)
+GENERIC_DATA_PATH = config_parser.get('live-dialog-service',
+                                      'GENERIC_DATA_PATH')
 logger.info("Generic data path: {} ...".format(GENERIC_DATA_PATH))
+
+
+EMBEDDER_PATH = config_parser.get('live-dialog-service', 'EMBEDDER_PATH')
+embedder_factory = EmbedderFactory(EMBEDDER_PATH)
+
 
 models = dict()
 
-def get_embedder(path):
-    if "http" in path:
-        return NetworkEmbedder(path)
-    else:
-        return Embedder(path)
 
-LANG_TO_EMBEDDER = {lang: get_embedder(path)
-                    for lang, path in config_parser['embedder'].items()}
+LANG_TO_EMB_MODE = dict(config_parser['embedder'])
+LANG_TO_TOK_MODE = dict(config_parser['tokenizer'])
 
-LANG_TO_TOK_MODE = {lang: mode
-                    for lang, mode in config_parser['tokenizer'].items()}
 
 logger.info("Prepare Flask app...")
 app = Flask(__name__)
@@ -71,7 +64,7 @@ def load_model(model_id):
         logger.error("Model {} not found".format(model_id))
         return None
 
-    model = VeraLiveDialog.load(model_path)
+    model = VeraLiveDialog.load(model_path, embedder_factory)
     return model
 
 
@@ -213,13 +206,8 @@ def train():
         embedder_mode = config['lang']
         tokenizer_mode = LANG_TO_TOK_MODE[config['lang']]
 
-        if emb_type == 'NetworkEmbedder':
-            embedder = NetworkEmbedder(EMB_PATH, embedder_mode)
-            logger.info("Set {}".format(emb_type))
-        else:
-            embedder = Embedder(EMB_PATH)
-            logger.info("Set {} with mode `{}`".format(emb_type,
-                                                       embedder_mode))
+        embedder = embedder_factory.create(embedder_mode)
+        logger.info("Set embedder mode: {}".format(embedder_mode))
 
         config['embedder_mode'] = embedder_mode
         config['tokenizer_mode'] = LANG_TO_TOK_MODE[config['lang']]
@@ -265,4 +253,4 @@ if __name__ == "__main__":
         else:
             models[model_id] = model
 
-    app.run(host="0.0.0.0", port=3335, debug=False)
+    app.run(host="0.0.0.0", port=3343, debug=False)

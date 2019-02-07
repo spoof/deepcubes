@@ -11,7 +11,9 @@ if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']
 else:
     print('Config file not found. Text config is used...')
-    config_file_path = 'tests/data/classifier_service/classifier_service.conf'
+    config_file_path = (
+        'tests/data/intent_classifier_service/intent_classifier_service.conf'
+    )
 
 config_parser = configparser.ConfigParser()
 config_parser.read(config_file_path)
@@ -19,13 +21,7 @@ config_parser.read(config_file_path)
 MODEL_STORAGE = config_parser.get('classifier-service', 'MODEL_STORAGE')
 EMBEDDER_PATH = config_parser.get('classifier-service', 'EMBEDDER_PATH')
 
-if 'http' in EMBEDDER_PATH:
-    emb_type = "NetworkEmbedder"
-    embedder_factory = EmbedderFactory(network_url=EMBEDDER_PATH)
-else:
-    emb_type = "LocalEmbedder"
-    embedder_factory = EmbedderFactory(local_path=EMBEDDER_PATH)
-
+embedder_factory = EmbedderFactory(EMBEDDER_PATH)
 
 LANG_TO_EMB_MODE = dict(config_parser['embedder'])
 LANG_TO_TOK_MODE = dict(config_parser['tokenizer'])
@@ -58,11 +54,7 @@ def main(csv_path, lang):
                 questions.append(question)
                 answers.append(answer)
 
-    if emb_type == 'NetworkEmbedder':
-        embedder = embedder_factory.create_network(LANG_TO_EMB_MODE[lang])
-    else:
-        embedder = embedder_factory.create_local(LANG_TO_EMB_MODE[lang])
-
+    embedder = embedder_factory.create(LANG_TO_EMB_MODE[lang])
     classifier = LogisticIntentClassifier(embedder)
     tokenizer_mode = LANG_TO_TOK_MODE[lang]
     classifier.train(answers, questions, tokenizer_mode)

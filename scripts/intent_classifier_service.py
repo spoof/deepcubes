@@ -14,7 +14,7 @@ logger = logging.getLogger("ClassifierService")
 logger.setLevel(logging.INFO)
 
 # create the logging file handler
-handler = logging.FileHandler("scripts/logs/classifier_service.log")
+handler = logging.FileHandler("scripts/logs/intent_classifier_service.log")
 formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
@@ -25,7 +25,9 @@ if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']
 else:
     logger.warning('Config file not found. Test config is used...')
-    config_file_path = 'tests/data/classifier_service/classifier_service.conf'
+    config_file_path = (
+        'tests/data/intent_classifier_service/intent_classifier_service.conf'
+    )
 
 logger.info("Read config file {} ...".format(config_file_path))
 config_parser = configparser.RawConfigParser()
@@ -36,11 +38,7 @@ MODEL_STORAGE = config_parser.get('classifier-service', 'MODEL_STORAGE')
 logger.info("Model storage: {} ...".format(MODEL_STORAGE))
 
 EMBEDDER_PATH = config_parser.get('classifier-service', 'EMBEDDER_PATH')
-
-if 'http' in EMBEDDER_PATH:
-    embedder_factory = EmbedderFactory(network_url=EMBEDDER_PATH)
-else:
-    embedder_factory = EmbedderFactory(local_path=EMBEDDER_PATH)
+embedder_factory = EmbedderFactory(EMBEDDER_PATH)
 
 
 models = dict()
