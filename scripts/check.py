@@ -1,7 +1,6 @@
-from deepcubes.cubes import Embedder, NetworkEmbedder
+from deepcubes.embedders import EmbedderFactory
 from deepcubes.models import LogisticIntentClassifier
 
-import json
 import os
 import argparse
 import configparser
@@ -12,27 +11,24 @@ if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']
 else:
     print('Config file not found. Text config is used...')
-    config_file_path = 'tests/data/test.conf'
+    config_file_path = 'tests/data/classifier_service/classifier_service.conf'
 
-config_parser = configparser.RawConfigParser()
+config_parser = configparser.ConfigParser()
 config_parser.read(config_file_path)
 
-MODEL_STORAGE = json.loads(
-    config_parser.get('classifier-service', 'MODEL_STORAGE')
-)
+MODEL_STORAGE = config_parser.get('classifier-service', 'MODEL_STORAGE')
+EMBEDDER_PATH = config_parser.get('classifier-service', 'EMBEDDER_PATH')
 
-EMB_PATH = json.loads(config_parser.get('classifier-service', 'EMB_PATH'))
-
-if 'http' in EMB_PATH:
-    emb_type = 'NetworkEmbedder'
+if 'http' in EMBEDDER_PATH:
+    emb_type = "NetworkEmbedder"
+    embedder_factory = EmbedderFactory(network_url=EMBEDDER_PATH)
 else:
-    emb_type = 'Embedder'
+    emb_type = "LocalEmbedder"
+    embedder_factory = EmbedderFactory(local_path=EMBEDDER_PATH)
 
-LANG_TO_EMB_PATH = {lang: json.loads(path)
-                    for lang, path in config_parser['embedder'].items()}
 
-LANG_TO_TOK_MODE = {lang: json.loads(mode)
-                    for lang, mode in config_parser['tokenizer'].items()}
+LANG_TO_EMB_MODE = dict(config_parser['embedder'])
+LANG_TO_TOK_MODE = dict(config_parser['tokenizer'])
 
 
 def get_new_model_id(path):
@@ -63,9 +59,9 @@ def main(csv_path, lang):
                 answers.append(answer)
 
     if emb_type == 'NetworkEmbedder':
-        embedder = NetworkEmbedder(EMB_PATH, lang)
+        embedder = embedder_factory.create_network(LANG_TO_EMB_MODE[lang])
     else:
-        embedder = Embedder(EMB_PATH)
+        embedder = embedder_factory.create_local(LANG_TO_EMB_MODE[lang])
 
     classifier = LogisticIntentClassifier(embedder)
     tokenizer_mode = LANG_TO_TOK_MODE[lang]
@@ -83,11 +79,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Train new model of intent classifier'
     )
-    parser.add_argument(
-        '-c', '--csv_path', required=False, type=str
-    )
-    parser.add_argument(
-        '-l', '--lang', required=False, type=str
-    )
+
+    parser.add_argument('-c', '--csv_path', required=True, type=str)
+    parser.add_argument('-l', '--lang', required=True, type=str)
+
     args = parser.parse_args()
     main(args.csv_path, args.lang)

@@ -25,7 +25,7 @@ if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']
 else:
     logger.warning('Config file not found. Test config is used...')
-    config_file_path = 'tests/data/classifier_service/classifier_serivce.conf'
+    config_file_path = 'tests/data/classifier_service/classifier_service.conf'
 
 logger.info("Read config file {} ...".format(config_file_path))
 config_parser = configparser.RawConfigParser()
@@ -164,9 +164,8 @@ if __name__ == "__main__":
         description='Launch Vera Live Dialog API'
     )
 
-    parser.add_argument(
-        '-m', '--model_id_list', nargs='+', type=int, default=list()
-    )
+    parser.add_argument('-m', '--model_id_list',
+                        nargs='+', type=int, default=list())
 
     args = parser.parse_args()
 
