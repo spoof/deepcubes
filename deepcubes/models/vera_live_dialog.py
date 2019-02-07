@@ -194,6 +194,6 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         model.intent_classifier = LogisticIntentClassifier.load(
             cube_params['intent_classifier'], embedder_factory
         )
-        model.cube_path = path
 
+        model.cube_path = path
         return model

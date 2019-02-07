@@ -11,18 +11,13 @@ class LogisticIntentClassifier(TrainableCube, PredictorCube):
     def __init__(self, embedder):
         self.tokenizer = Tokenizer()
         self.embedder = embedder
-
         self.vectorizer = Pipe([self.tokenizer, self.embedder])
-
         self.log_reg_classifier = LogRegClassifier()
 
     def train(self, intent_labels, intent_phrases, tokenizer_mode):
-
         self.tokenizer.train(tokenizer_mode)
-
         intent_vectors = [self.vectorizer(phrase)
                           for phrase in intent_phrases]
-
         self.log_reg_classifier.train(intent_vectors, intent_labels)
 
     def forward(self, query):
@@ -61,6 +56,6 @@ class LogisticIntentClassifier(TrainableCube, PredictorCube):
         model.log_reg_classifier = LogRegClassifier.load(
             cube_params['log_reg_classifier']
         )
-        model.cube_path = path
 
+        model.cube_path = path
         return model

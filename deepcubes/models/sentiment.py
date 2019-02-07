@@ -27,7 +27,6 @@ class SentimentNN(nn.Module):
 
     def forward(self, x, hidden=None):
         emb = self.embed(x)
-
         out, (ht, ct) = self.lstm(emb, hidden)
         out = self.fc(out[:, -1, :])
 
@@ -100,7 +99,6 @@ class Sentiment(TrainableCube):
         model = cls(cube_params["embed_size"],
                     cube_params["hidden_size"],
                     vocab.size())
-
         model.vocab = vocab
         model.classifier.load_state_dict(torch.load(cube_params['nn_params']))
 

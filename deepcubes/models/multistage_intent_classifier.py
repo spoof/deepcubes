@@ -26,8 +26,8 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
             [set(self.minor_clf.tokenizer(' '.join(words.split(','))))
              for words in groups["keywords"]]
         ))
-        self.minor_to_answer = dict(zip(groups["minor"], groups["answer"]))
 
+        self.minor_to_answer = dict(zip(groups["minor"], groups["answer"]))
         self.major_to_minors = defaultdict(list)
         for major, minor in zip(groups["major"], groups["minor"]):
             self.major_to_minors[major].append(minor)
@@ -50,6 +50,7 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
             [len(words.intersection(self.minor_to_keywords[minor]))
              for minor in minors]
         ))
+
         max_count = max(keywords_counts.values())
 
         # subset best minors (with max keywords counts)
@@ -91,10 +92,8 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
 
         major_clf = LogisticIntentClassifier.load(cube_params['major_clf'],
                                                   embedder_factory)
-
         minor_clf = LogisticIntentClassifier.load(cube_params['minor_clf'],
                                                   embedder_factory)
-
         model = cls(major_clf, minor_clf)
         model.train(cube_params['groups_data_path'])
         model.cube_path = path

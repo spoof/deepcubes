@@ -54,14 +54,11 @@ class Tokenizer(TrainableCube):
         return words
 
     def _get_btokenize_words(self, text):
-
         lower_text = text.lower()
         cleanded_text = re.sub("\\(.*?\\)", "", lower_text)
 
         tokens = self.stemmer.analyze(cleanded_text)
-
         lemmas = []
-
         for token in tokens:
 
             if "analysis" in token:
@@ -97,7 +94,6 @@ class Tokenizer(TrainableCube):
     def _text_clean(self, text):
         text_cleared = ''.join(ch for ch in text if ch not in self.exclude)
         text_cleared = text_cleared.lower()
-
         return text_cleared
 
     def train(self, mode, letter_limit=3):

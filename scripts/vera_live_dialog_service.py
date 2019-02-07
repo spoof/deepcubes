@@ -38,17 +38,14 @@ GENERIC_DATA_PATH = config_parser.get('live-dialog-service',
                                       'GENERIC_DATA_PATH')
 logger.info("Generic data path: {} ...".format(GENERIC_DATA_PATH))
 
-
 EMBEDDER_PATH = config_parser.get('live-dialog-service', 'EMBEDDER_PATH')
 embedder_factory = EmbedderFactory(EMBEDDER_PATH)
 
 
 models = dict()
 
-
 LANG_TO_EMB_MODE = dict(config_parser['embedder'])
 LANG_TO_TOK_MODE = dict(config_parser['tokenizer'])
-
 
 logger.info("Prepare Flask app...")
 app = Flask(__name__)

@@ -12,10 +12,7 @@ class LogRegClassifier(PredictorCube, TrainableCube):
     """Classify"""
 
     def __init__(self, solver='liblinear', multi_class='ovr'):
-        self.clf = LogisticRegression(
-            solver=solver,
-            multi_class=multi_class,
-        )
+        self.clf = LogisticRegression(solver=solver, multi_class=multi_class)
 
     def train(self, X, Y):
         """Train classifier at question-answer pairs"""
