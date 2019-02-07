@@ -34,6 +34,6 @@ class EmbedderFactory(EmbedderFactoryABC):
 
     def create(self, mode):
         if self.factory_type == FactoryType.NETWORK:
-            return NetworkEmbedder(self._get_full_path(mode), mode)
+            return NetworkEmbedder(self._get_full_url(mode), mode)
         else:
             return LocalEmbedder(self._get_full_path(mode), mode)
