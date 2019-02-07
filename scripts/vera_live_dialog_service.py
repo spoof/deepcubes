@@ -203,7 +203,8 @@ def train():
             return jsonify({"message": "Config in wrong format."})
 
         logger.info("Received `lang` key: {}".format(config['lang']))
-        embedder_mode = config['lang']
+
+        embedder_mode = LANG_TO_EMB_MODE[config['lang']]
         tokenizer_mode = LANG_TO_TOK_MODE[config['lang']]
 
         embedder = embedder_factory.create(embedder_mode)

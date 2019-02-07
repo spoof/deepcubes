@@ -14,7 +14,8 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
 
         self.models_storage = 'scripts/models/live_dialog'
         os.makedirs(self.models_storage, exist_ok=True)
-        self.test_config_path = 'tests/data/vera_test.config'
+
+        self.test_config_path = 'tests/data/vera_live_dialog/test.config'
 
         with open(self.test_config_path, 'r') as conf_file:
             self.test_config = conf_file.read()
