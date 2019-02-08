@@ -1,5 +1,4 @@
 from .cube import TrainableCube
-
 from pymystem3 import Mystem
 import string
 import json
@@ -74,7 +73,7 @@ class Tokenizer(TrainableCube):
                         if not len(lemmas) or lemmas[-1] != "_ENG_":
                             lemmas.append("_ENG_")
                     else:
-                        if re.sub("\s", "", token["text"]):
+                        if re.sub(r"\s", "", token["text"]):
                             if not len(lemmas) or lemmas[-1] != "_NAME_":
                                 lemmas.append("_NAME_")
             else:
