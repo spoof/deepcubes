@@ -75,7 +75,7 @@ def main(csv_path, lang):
     live_dialog_model.save(model_path)
 
     if new_model_id is not None:
-        print('Created model with id {}'.format(new_model_id))
+        print('Created live dialog model with id {}'.format(new_model_id))
 
 
 if __name__ == '__main__':
