@@ -2,6 +2,7 @@ import os
 from enum import Enum
 
 from ..embedders import LocalEmbedder, NetworkEmbedder
+from ..utils.functions import is_url
 
 
 class EmbedderFactoryABC(object):
@@ -17,8 +18,7 @@ class FactoryType(Enum):
 class EmbedderFactory(EmbedderFactoryABC):
 
     def __init__(self, path):
-        # TODO: need more sophisticated url checker
-        if "http" in path:
+        if is_url(path):
             self.factory_type = FactoryType.NETWORK
         else:
             self.factory_type = FactoryType.LOCAL

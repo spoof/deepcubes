@@ -10,12 +10,11 @@ class NetworkEmbedder(Embedder):
 
     EMPTY_STRING = ""
 
-    def __init__(self, url, mode):
-        if not mode:
+    def __init__(self, url, mode=None):
+        if mode is None:
             mode = os.path.basename(url)
 
         super().__init__(mode)
-
         self.url = url
 
     def __call__(self, *input):

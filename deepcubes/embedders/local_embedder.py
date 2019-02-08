@@ -10,10 +10,10 @@ class LocalEmbedder(Embedder):
     """Word embedder"""
 
     def __init__(self, matrix_path, mode=None):
-        if not mode:
+        if mode is None:
             mode = os.path.splitext(os.path.basename(matrix_path))[0]
-        super().__init__(mode)
 
+        super().__init__(mode)
         self.matrix_path = matrix_path
         self.model = KeyedVectors.load(matrix_path, mmap='r')
 

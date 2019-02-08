@@ -31,3 +31,8 @@ def logistic_regression_from_dict(data):
         setattr(model, name, np.array(p))
 
     return model
+
+
+def is_url(path):
+    # TODO: need more sophisticated url checker
+    return path.startswith("http")

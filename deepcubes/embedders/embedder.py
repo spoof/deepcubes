@@ -19,7 +19,6 @@ class Embedder(Cube):
         }
 
         cube_path = os.path.join(path, name)
-
         with open(cube_path, 'w') as out:
             out.write(json.dumps(cube_params))
 
