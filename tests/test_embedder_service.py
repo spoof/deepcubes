@@ -13,7 +13,7 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
 
     def test_get_requests(self):
         response = self.service.get('/test')
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         tokenizer = Tokenizer()
         tokenizer.train('lem')
