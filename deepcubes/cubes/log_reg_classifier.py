@@ -1,10 +1,12 @@
 from .cube import CubeLabel, PredictorCube, TrainableCube
+from ..utils.functions import logistic_regression_from_dict
+from ..utils.functions import logistic_regression_to_dict
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.exceptions import NotFittedError
 
 import numpy as np
-import pickle
+import json
 import os
 
 
@@ -35,24 +37,23 @@ class LogRegClassifier(PredictorCube, TrainableCube):
     def save(self, path, name='logistic_regression.cube'):
         super().save(path, name)
 
+        cube_params = {
+            'cube': self.__class__.__name__,
+            'clf': logistic_regression_to_dict(self.clf),
+        }
+
         cube_path = os.path.join(path, name)
-        with open(cube_path, "wb") as handle:
-            pickle.dump({
-                'cube': self.__class__.__name__,
-                'clf': self.clf,
-            },
-                protocol=pickle.HIGHEST_PROTOCOL,
-                file=handle
-            )
+        with open(cube_path, 'w') as out:
+            out.write(json.dumps(cube_params))
 
         return cube_path
 
     @classmethod
     def load(cls, path):
-        with open(path, "rb") as handle:
-            data = pickle.load(handle)
+        with open(path, 'r') as f:
+            cube_params = json.loads(f.read())
 
         classifier = cls()
-        classifier.clf = data['clf']
+        classifier.clf = logistic_regression_from_dict(cube_params['clf'])
 
         return classifier

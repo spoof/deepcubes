@@ -1,10 +1,10 @@
 from .cube import TrainableCube
 
 from collections import defaultdict
-import pickle
 import tqdm
 import numpy as np
 import os
+import json
 
 
 class Vocabulary(TrainableCube):
@@ -30,27 +30,26 @@ class Vocabulary(TrainableCube):
     def save(self, path, name='vocabulary.cube'):
         super().save(path, name)
 
+        cube_params = {
+            'cube': self.__class__.__name__,
+            'max_words': self.max_words,
+            'min_count': self.min_count,
+            'ids': self.ids
+        }
+
         cube_path = os.path.join(path, name)
-        with open(cube_path, "wb") as handle:
-            pickle.dump({
-                'cube': self.__class__.__name__,
-                "max_words": self.max_words,
-                "min_count": self.min_count,
-                "ids": self.ids
-            },
-                protocol=pickle.HIGHEST_PROTOCOL,
-                file=handle
-            )
+        with open(cube_path, 'w') as out:
+            out.write(json.dumps(cube_params))
 
         return cube_path
 
     @classmethod
     def load(cls, path):
-        with open(path, "rb") as handle:
-            data = pickle.load(handle)
+        with open(path, 'r') as f:
+            cube_params = json.loads(f.read())
 
-        vocab = cls(data["max_words"], data["min_count"])
-        vocab.ids = data["ids"]
+        vocab = cls(cube_params["max_words"], cube_params["min_count"])
+        vocab.ids = cube_params["ids"]
 
         return vocab
 
