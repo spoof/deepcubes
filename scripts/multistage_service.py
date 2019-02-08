@@ -8,6 +8,7 @@ import configparser
 from deepcubes.models import LogisticIntentClassifier
 from deepcubes.models import MultistagIntentClassifier
 from deepcubes.embedders import EmbedderFactory
+from deepcubes.cubes import Tokenizer
 
 logger = logging.getLogger("MultistageClassifierService")
 logger.setLevel(logging.INFO)
@@ -84,7 +85,11 @@ def load_model(major_model_id, minor_model_id, groups_data_path):
     minor_model = LogisticIntentClassifier.load(minor_model_path,
                                                 embedder_factory)
 
-    multistage_model = MultistagIntentClassifier(major_model, minor_model)
+    tokenizer = Tokenizer()
+    tokenizer.train('lem', 0)
+
+    multistage_model = MultistagIntentClassifier(major_model, minor_model,
+                                                 tokenizer)
     multistage_model.train(groups_data_path)
 
     return multistage_model
@@ -160,6 +165,6 @@ if __name__ == "__main__":
     )
 
     if multistage_model:
-        app.run(host="0.0.0.0", port=3349, debug=False)
+        app.run(host="0.0.0.0", port=3341, debug=False)
     else:
         logger.error("Failed to download models")

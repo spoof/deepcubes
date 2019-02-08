@@ -3,16 +3,18 @@ import pandas as pd
 import json
 import os
 
-from ..cubes import TrainableCube, PredictorCube
+from ..cubes import TrainableCube, PredictorCube, Tokenizer
 from ..models import LogisticIntentClassifier
 
 
 class MultistagIntentClassifier(TrainableCube, PredictorCube):
     """Live dialog model"""
 
-    def __init__(self, major_clf, minor_clf):
+    def __init__(self, major_clf, minor_clf, tokenizer):
         self.major_clf = major_clf
         self.minor_clf = minor_clf
+
+        self.tokenizer = tokenizer
 
     def train(self, groups_data_path):
         self.groups_data_path = groups_data_path
@@ -23,8 +25,7 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
         self.minor_to_major = dict(zip(groups["minor"], groups["major"]))
         self.minor_to_keywords = dict(zip(
             groups["minor"],
-            [set(self.minor_clf.tokenizer(' '.join(words.split(','))))
-             for words in groups["keywords"]]
+            [set(self.tokenizer(words)) for words in groups["keywords"]]
         ))
 
         self.minor_to_answer = dict(zip(groups["minor"], groups["answer"]))
@@ -42,7 +43,7 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
         major = major_intents[0][0]  # top major
         minors = self.major_to_minors[major]
 
-        words = set(self.minor_clf.tokenizer(query))
+        words = set(self.tokenizer(query))
 
         # count keywords for each minor
         keywords_counts = dict(zip(
@@ -77,6 +78,7 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
             'minor_clf': self.minor_clf.save(
                 path=os.path.join(path, 'minor_clf')
             ),
+            'tokenizer': self.tokenizer.save(path=path),
         }
 
         self.cube_path = os.path.join(path, name)
@@ -94,7 +96,8 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
                                                   embedder_factory)
         minor_clf = LogisticIntentClassifier.load(cube_params['minor_clf'],
                                                   embedder_factory)
-        model = cls(major_clf, minor_clf)
+        tokenizer = Tokenizer.load(cube_params['tokenizer'])
+        model = cls(major_clf, minor_clf, tokenizer)
         model.train(cube_params['groups_data_path'])
         model.cube_path = path
 
