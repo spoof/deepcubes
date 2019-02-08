@@ -1,5 +1,6 @@
 from deepcubes.embedders import EmbedderFactory
 from deepcubes.models import VeraLiveDialog
+from deepcubes.utils.functions import get_new_model_id
 
 import os
 import argparse
@@ -27,17 +28,6 @@ LANG_TO_TOK_MODE = dict(config_parser['tokenizer'])
 
 GENERIC_DATA_PATH = config_parser.get('live-dialog-service',
                                       'GENERIC_DATA_PATH')
-
-
-def get_new_model_id(path):
-    models_ids = [int(file_name) for file_name in os.listdir(path) if not (
-        os.path.isfile(os.path.join(path, file_name))
-    )]
-
-    sorted_ids = sorted(models_ids)
-    new_model_id = sorted_ids[-1] + 1 if len(sorted_ids) else 0
-
-    return new_model_id
 
 
 def main(csv_path, lang):

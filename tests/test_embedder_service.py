@@ -20,7 +20,6 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
 
         tokens = tokenizer('Робот Вера')
         response = self.service.get('/test', query_string={"tokens": tokens})
-        print(response.get_json())
 
         generated_vector = response.get_json()["vector"]
 

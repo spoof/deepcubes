@@ -9,6 +9,7 @@ import configparser
 
 from deepcubes.models import LogisticIntentClassifier
 from deepcubes.embedders import EmbedderFactory
+from deepcubes.utils.functions import get_new_model_id
 
 logger = logging.getLogger("ClassifierService")
 logger.setLevel(logging.INFO)
@@ -60,17 +61,6 @@ def load_model(model_id):
     model = LogisticIntentClassifier.load(model_path, embedder_factory)
 
     return model
-
-
-def get_new_model_id(path):
-    models_ids = [int(file_name) for file_name in os.listdir(path) if not (
-        os.path.isfile(os.path.join(path, file_name))
-    )]
-
-    sorted_ids = sorted(models_ids)
-    new_model_id = sorted_ids[-1] + 1 if len(sorted_ids) else 0
-
-    return new_model_id
 
 
 @app.route("/predict", methods=["GET", "POST"])
