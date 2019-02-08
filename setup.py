@@ -9,7 +9,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='deepcubes',
-    version='0.2',
+    version='0.3',
     description='Vera deep learning framework',
     long_description=long_description,
     long_description_content_type='text/markdown',
