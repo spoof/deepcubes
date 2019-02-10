@@ -9,7 +9,6 @@ import configparser
 
 from deepcubes.models import LogisticIntentClassifier
 from deepcubes.embedders import EmbedderFactory
-from deepcubes.utils.functions import get_new_model_id
 
 logger = logging.getLogger("ClassifierService")
 logger.setLevel(logging.INFO)

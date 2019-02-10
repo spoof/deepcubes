@@ -16,7 +16,9 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
         service.app.testing = True
         self.service = service.app.test_client()
 
-        self.model_storage = 'scripts/models/intents'
+        self.model_storage = 'tests/models/intents'
+        os.makedirs(self.model_storage, exist_ok=True)
+
         self.embedder = LocalEmbedder('tests/data/test_embeds.kv')
         self.classifier = LogisticIntentClassifier(self.embedder)
 
@@ -47,6 +49,7 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
             model_id=self.model_id,
             resp_type='get'
         )
+
         self.assertEqual(2, len(predict_resp_data))
         for output in predict_resp_data:
             for key in self.output_keys:

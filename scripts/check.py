@@ -54,7 +54,7 @@ def main(csv_path, lang):
     classifier.save(os.path.join(MODEL_STORAGE, str(new_model_id)))
 
     if new_model_id is not None:
-        print('Created intent classifier model with id {}'.format(new_model_id))
+        print('Created intent classifier model id: {}'.format(new_model_id))
 
 
 if __name__ == '__main__':
