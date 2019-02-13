@@ -1,8 +1,11 @@
 import json
 import os
 
-from torch import nn
-import torch
+try:
+    from torch import nn
+    import torch
+except ImportError:
+    raise ImportError("Missing dependencies for sentriment support")
 
 from ..cubes import TrainableCube
 from ..cubes import Vocabulary

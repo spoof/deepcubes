@@ -27,4 +27,7 @@ setup(
     keywords='nlp',
     install_requires=["gensim", "sklearn", "pandas", "pymystem3",
                       "numpy", "flask", "editdistance", "tqdm"],
+    extras_require={
+        'sentiment': ['torch'],
+    }
 )
