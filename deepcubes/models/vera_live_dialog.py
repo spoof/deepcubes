@@ -17,23 +17,26 @@ class Generic(TrainableCube, PredictorCube):
 
     MAX_EDIT_DIST = 1  # may be need to control from user?
 
-    def __init__(self, mode, data_path):
+    def __init__(self, mode, texts):
         self.mode = mode
-        self.data_path = data_path
+        self.texts = texts
         self.labels = []
         self.ed_matcher = EditDistanceMatcher()
 
-    def train(self, labels):
-        self.labels = labels
-
+    @classmethod
+    def create(cls, mode, data_path):
         texts = []
-        with open(self.data_path, "r") as data_file:
+        with open(data_path, "r") as data_file:
             for line in data_file:
-                text, mode = line.strip().split("\t")
-                if mode == self.mode:
+                text, line_mode = line.strip().split("\t")
+                if line_mode == mode:
                     texts.append(text)
 
-        self.ed_matcher.train([labels], [texts], self.MAX_EDIT_DIST)
+        return cls(mode, texts)
+
+    def train(self, labels):
+        self.labels = labels
+        self.ed_matcher.train([labels], [self.texts], self.MAX_EDIT_DIST)
 
     def forward(self, text):
         return self.ed_matcher(text)
@@ -45,7 +48,7 @@ class Generic(TrainableCube, PredictorCube):
             'cube': self.__class__.__name__,
             'labels': self.labels,
             'mode': self.mode,
-            'data_path': self.data_path,
+            'texts': self.texts,
             'ed_matcher': self.ed_matcher.save(path),
         }
 
@@ -60,7 +63,7 @@ class Generic(TrainableCube, PredictorCube):
         with open(path, 'r') as f:
             cube_params = json.loads(f.read())
 
-        model = cls(cube_params['mode'], cube_params['data_path'])
+        model = cls(cube_params['mode'], cube_params['texts'])
         model.labels = cube_params['labels']
         model.ed_matcher = EditDistanceMatcher.load(cube_params["ed_matcher"])
 
@@ -76,10 +79,10 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         self.pattern_matcher = PatternMatcher()
 
         self.generics = {
-            "yes": Generic("yes", generic_data_path),
-            "no": Generic("no", generic_data_path),
-            "repeat": Generic("repeat", generic_data_path),
-            "no_questions": Generic("no_questions", generic_data_path)
+            "yes": Generic.create("yes", generic_data_path),
+            "no": Generic.create("no", generic_data_path),
+            "repeat": Generic.create("repeat", generic_data_path),
+            "no_questions": Generic.create("no_questions", generic_data_path)
         }
 
         self.generic_data_path = generic_data_path
