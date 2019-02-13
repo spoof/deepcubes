@@ -128,8 +128,11 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
         self.pattern_matcher.train(pattern_matcher_labels,
                                    pattern_matcher_patterns)
 
-        for generic in generic_labels:
-            self.generics[generic].train(generic_labels[generic])
+        for generic in self.generics:
+            if generic in generic_labels:
+                self.generics[generic].train(generic_labels[generic])
+            else:
+                self.generics[generic].train([])
 
         self.intent_classifier.train(intent_labels, intent_phrases,
                                      config["tokenizer_mode"])
