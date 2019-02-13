@@ -107,27 +107,17 @@ class Tokenizer(TrainableCube):
 
         return tokens
 
-    def save(self, path, name='token.cube'):
-        super().save(path, name)
-
+    def save(self):
         cube_params = {
-            'cube': self.__class__.__name__,
+            'class': self.__class__.__name__,
             'mode': self.mode,
             'letter_limit': self.letter_limit,
         }
 
-        cube_path = os.path.join(path, name)
-
-        with open(cube_path, 'w') as out:
-            out.write(json.dumps(cube_params))
-
-        return cube_path
+        return cube_params
 
     @classmethod
-    def load(cls, path):
-        with open(path, 'r') as f:
-            cube_params = json.loads(f.read())
-
+    def load(cls, cube_params):
         tokenizer = cls()
         tokenizer.train(cube_params['mode'], cube_params['letter_limit'])
 

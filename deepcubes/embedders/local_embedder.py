@@ -37,9 +37,6 @@ class LocalEmbedder(Embedder):
         return vector
 
     @classmethod
-    def load(cls, path, matrix_path):
-        with open(path, 'r') as f:
-            cube_params = json.loads(f.read())
-
-        network_embedder = cls(matrix_path, cube_params["mode"])
-        return network_embedder
+    def load(cls, cube_params, matrix_path):
+        local_embedder = cls(matrix_path, cube_params["mode"])
+        return local_embedder

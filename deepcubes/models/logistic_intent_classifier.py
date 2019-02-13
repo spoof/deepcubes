@@ -23,39 +23,29 @@ class LogisticIntentClassifier(TrainableCube, PredictorCube):
     def forward(self, query):
         return self.log_reg_classifier(self.vectorizer(query))
 
-    def save(self, path, name='intent_classifier.cube'):
-        super().save(path, name)
-
-        cube_params = {
-            'cube': self.__class__.__name__,
-            'tokenizer': self.tokenizer.save(path=path),
-            'log_reg_classifier': self.log_reg_classifier.save(path=path),
-            'embedder': self.embedder.save(path=path)
+    def save(self):
+        model_params = {
+            'class': self.__class__.__name__,
+            'tokenizer': self.tokenizer.save(),
+            'log_reg_classifier': self.log_reg_classifier.save(),
+            'embedder': self.embedder.save()
         }
 
-        self.cube_path = os.path.join(path, name)
-        with open(self.cube_path, 'w') as out:
-            out.write(json.dumps(cube_params))
-
-        return self.cube_path
+        return self.model_params
 
     @classmethod
-    def load(cls, path, embedder_factory):
-        with open(path, 'r') as f:
-            cube_params = json.loads(f.read())
+    def load(cls, model_params, embedder_factory):
 
         # get embedder mode
-        with open(cube_params["embedder"], 'r') as f:
-            embedder_params = json.loads(f.read())
-
+        embedder_params = model_params['embedder']
         embedder = embedder_factory.create(embedder_params["mode"])
+
         model = LogisticIntentClassifier(embedder)
-        model.tokenizer = Tokenizer.load(cube_params['tokenizer'])
+        model.tokenizer = Tokenizer.load(model_params['tokenizer'])
 
         model.vectorizer = Pipe([model.tokenizer, model.embedder])
         model.log_reg_classifier = LogRegClassifier.load(
-            cube_params['log_reg_classifier']
+            model_params['log_reg_classifier']
         )
 
-        model.cube_path = path
         return model

@@ -41,9 +41,6 @@ class NetworkEmbedder(Embedder):
             return content['vector']
 
     @classmethod
-    def load(cls, path, url):
-        with open(path, 'r') as f:
-            cube_params = json.loads(f.read())
-
+    def load(cls, cube_params, url):
         network_embedder = cls(url, cube_params["mode"])
         return network_embedder

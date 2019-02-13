@@ -66,39 +66,27 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
         # TODO we couldn't pass to this part
         return self.minor_to_answer[minors[0]]
 
-    def save(self, path, name='vera_live_dialog.cube'):
-        super().save(path, name)
-
-        cube_params = {
-            'cube': self.__class__.__name__,
+    def save(self):
+        model_params = {
+            'class': self.__class__.__name__,
             'groups_data_path': self.groups_data_path,
-            'major_clf': self.major_clf.save(
-                path=os.path.join(path, 'major_clf')
+            'major_clf': self.major_clf.save()
             ),
-            'minor_clf': self.minor_clf.save(
-                path=os.path.join(path, 'minor_clf')
+            'minor_clf': self.minor_clf.save()
             ),
-            'tokenizer': self.tokenizer.save(path=path),
+            'tokenizer': self.tokenizer.save(),
         }
 
-        self.cube_path = os.path.join(path, name)
-        with open(self.cube_path, 'w') as out:
-            out.write(json.dumps(cube_params))
-
-        return self.cube_path
+        return model_params
 
     @classmethod
-    def load(cls, path, embedder_factory):
-        with open(path, 'r') as f:
-            cube_params = json.loads(f.read())
-
-        major_clf = LogisticIntentClassifier.load(cube_params['major_clf'],
+    def load(cls, model_params, embedder_factory):
+        major_clf = LogisticIntentClassifier.load(model_params['major_clf'],
                                                   embedder_factory)
-        minor_clf = LogisticIntentClassifier.load(cube_params['minor_clf'],
+        minor_clf = LogisticIntentClassifier.load(model_params['minor_clf'],
                                                   embedder_factory)
-        tokenizer = Tokenizer.load(cube_params['tokenizer'])
+        tokenizer = Tokenizer.load(model_params['tokenizer'])
         model = cls(major_clf, minor_clf, tokenizer)
-        model.train(cube_params['groups_data_path'])
-        model.cube_path = path
+        model.train(model_params['groups_data_path'])
 
         return model

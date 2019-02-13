@@ -13,7 +13,7 @@ class Cube(object):
         return self.forward(*input)
 
     def save(self, path, name, *input):
-        os.makedirs(path, exist_ok=True)
+        raise NotImplementedError
 
     def load(self, *input):
         raise NotImplementedError

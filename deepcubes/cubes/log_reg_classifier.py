@@ -14,7 +14,8 @@ class LogRegClassifier(PredictorCube, TrainableCube):
 
     def __init__(self, solver='liblinear', multi_class='ovr'):
         self.clf = LogisticRegression(solver=solver, multi_class=multi_class)
-        self.trained = False
+                                      multi_class=multi_class)
+        self.single_label = None
         self.single_label = None
 
     def train(self, X, Y):
@@ -52,27 +53,18 @@ class LogRegClassifier(PredictorCube, TrainableCube):
             for label in order
         ]
 
-    def save(self, path, name='logistic_regression.cube'):
-        super().save(path, name)
-
+    def save(self):
         cube_params = {
-            'cube': self.__class__.__name__,
+            'class': self.__class__.__name__,
             'trained': self.trained,
             'single_label': self.single_label,
             'clf': logistic_regression_to_dict(self.clf),
         }
 
-        cube_path = os.path.join(path, name)
-        with open(cube_path, 'w') as out:
-            out.write(json.dumps(cube_params))
-
-        return cube_path
+        return cube_params
 
     @classmethod
-    def load(cls, path):
-        with open(path, 'r') as f:
-            cube_params = json.loads(f.read())
-
+    def load(cls, cube_params):
         classifier = cls()
         classifier.clf = logistic_regression_from_dict(cube_params['clf'])
         classifier.trained = cube_params["trained"]

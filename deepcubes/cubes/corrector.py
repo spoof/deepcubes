@@ -38,27 +38,17 @@ class Corrector(TrainableCube):
         self.vocab = vocab
         self.max_distance = max_distance
 
-    def save(self, path, name="corrector.cube"):
-        super().save(path, name)
-
+    def save(self):
         cube_params = {
-            'cube': self.__class__.__name__,
+            'class': self.__class__.__name__,
             'vocab': self.vocab,
             'max_distance': self.max_distance,
         }
 
-        cube_path = os.path.join(path, name)
-
-        with open(cube_path, 'w') as out:
-            out.write(json.dumps(cube_params))
-
-        return cube_path
+        return cube_params
 
     @classmethod
-    def load(cls, path):
-        with open(path, 'r') as f:
-            cube_params = json.loads(f.read())
-
+    def load(cls, cube_params):
         corrector = cls()
         corrector.train(cube_params["vocab"],
                         cube_params["max_distance"])

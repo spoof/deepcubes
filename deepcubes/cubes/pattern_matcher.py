@@ -41,27 +41,17 @@ class PatternMatcher(TrainableCube, PredictorCube):
         return sorted_labels([CubeLabel(label, labels_probas[label])
                               for label in unique_labels])
 
-    def save(self, path, name="pattern_matcher.cube"):
-        super().save(path, name)
-
+    def save(self):
         cube_params = {
             'cube': self.__class__.__name__,
             'labels': self.labels,
             'patterns': self.patterns,
         }
 
-        cube_path = os.path.join(path, name)
-
-        with open(cube_path, 'w') as out:
-            out.write(json.dumps(cube_params))
-
-        return cube_path
+        return cube_params
 
     @classmethod
-    def load(cls, path):
-        with open(path, 'r') as f:
-            cube_params = json.loads(f.read())
-
+    def load(cls, cube_params):
         pattern_matcher = cls()
         pattern_matcher.train(cube_params["labels"], cube_params["patterns"])
 

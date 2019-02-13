@@ -27,27 +27,18 @@ class Vocabulary(TrainableCube):
             "_PAD_": 3
         }
 
-    def save(self, path, name='vocabulary.cube'):
-        super().save(path, name)
-
+    def save(self):
         cube_params = {
-            'cube': self.__class__.__name__,
+            'class': self.__class__.__name__,
             'max_words': self.max_words,
             'min_count': self.min_count,
             'ids': self.ids
         }
 
-        cube_path = os.path.join(path, name)
-        with open(cube_path, 'w') as out:
-            out.write(json.dumps(cube_params))
-
-        return cube_path
+        return cube_params
 
     @classmethod
-    def load(cls, path):
-        with open(path, 'r') as f:
-            cube_params = json.loads(f.read())
-
+    def load(cls, cube_params):
         vocab = cls(cube_params["max_words"], cube_params["min_count"])
         vocab.ids = cube_params["ids"]
 
