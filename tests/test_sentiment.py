@@ -1,10 +1,14 @@
 import unittest
 
+try:
+    from deepcubes.models import Sentiment
+except ImportError:
+    raise unittest.SkipTest("Missing sentiment requirements. Skipping test")
+
 
 class TestSentiment(unittest.TestCase):
 
     def test_sentiment(self):
-        """
         sentiment = Sentiment(5, 5)
         sentiment("бомба")
 
@@ -37,5 +41,3 @@ class TestSentiment(unittest.TestCase):
             sentiment("классн"),
             [("positive", 1), ("negative", 0)]
         )
-
-        """
