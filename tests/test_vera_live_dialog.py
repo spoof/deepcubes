@@ -38,6 +38,25 @@ class TestVeraLiveDialog(unittest.TestCase):
             "not_understand_label": "not_understand"
         }
 
+        self.config_minor = {
+            "embedder_mode": "test",
+            "tokenizer_mode": "lem",
+            "labels_settings": [
+                {
+                    "label": "hello",
+                    "patterns": ["привет", ".*привет.*"],
+                },
+                {
+                    "label": "bye-bye",
+                },
+                {
+                    "label": "rep",
+                    "generics": ["repeat"]
+                }
+            ],
+            "not_understand_label": "not_understand"
+        }
+
     def test_vera_dialog(self):
         vera = VeraLiveDialog(self.embedder, self.generic_data_path)
         vera.train(self.config)
@@ -77,6 +96,14 @@ class TestVeraLiveDialog(unittest.TestCase):
         self.assertEqual(
             vera("повтори", ["rep", "hello"]),
             [("rep", 1), ("not_understand", 0.6), ("hello", 0.5)]
+        )
+
+        vera.train(self.config_minor)
+
+        self.assertEqual(
+            vera("привет"),
+            [("hello", 1), ("not_understand", 0.6),
+             ("rep", 0)]
         )
 
     def test_live_dialog_model_loading(self):

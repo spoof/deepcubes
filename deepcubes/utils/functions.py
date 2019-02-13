@@ -21,7 +21,8 @@ def logistic_regression_to_dict(lr_model):
     }
 
     for p in ('coef_', 'intercept_', 'classes_', 'n_iter_'):
-        data['model_params'][p] = getattr(lr_model, p).tolist()
+        if hasattr(lr_model, p):
+            data['model_params'][p] = getattr(lr_model, p).tolist()
 
     return data
 

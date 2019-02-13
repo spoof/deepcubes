@@ -44,6 +44,16 @@ class TestLogRegClassifier(unittest.TestCase):
 
         self.checkpoint_path = 'tests/data/'
 
+    def test_extreme_cases(self):
+        clf = LogRegClassifier()
+
+        clf.train([], [])
+        self.assertEqual(clf([[0, 1, 2]]), [])
+
+        clf.train([[1, 2, 3]], [1])
+        self.assertEqual(clf([0, 0, 0]), [(1, 1.0)])
+        self.assertEqual(clf([0, 1, 2]), [(1, 1.0)])
+
     def test_saving_and_loading(self):
         name = 'logistic_regression.cube'
         self.classifier.train(self.X, self.Y)
