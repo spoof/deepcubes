@@ -1,11 +1,12 @@
-from .cube import TrainableCube
-
 from collections import defaultdict
-import tqdm
+
 import numpy as np
+import tqdm
+
+from .cube import Trainable, Serializable
 
 
-class Vocabulary(TrainableCube):
+class Vocabulary(Trainable, Serializable):
 
     def __init__(self, max_words=None, min_count=None):
         self.max_words = max_words

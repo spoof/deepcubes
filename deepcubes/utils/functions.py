@@ -1,11 +1,12 @@
-from typing import List
-from ..cubes.cube import CubeLabel
+from typing import Iterable
 
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 
+from ..cubes.cube import CubeLabel
 
-def sorted_labels(cube_labels: List[CubeLabel]):
+
+def sorted_labels(cube_labels: Iterable[CubeLabel]):
     return sorted(cube_labels, key=lambda elem: (-elem.proba, elem.label))
 
 

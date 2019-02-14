@@ -1,9 +1,9 @@
-from .cube import TrainableCube
-
 import editdistance as ed
 
+from .cube import Cube, Trainable, Serializable
 
-class Corrector(TrainableCube):
+
+class Corrector(Cube, Trainable, Serializable):
     """Fix text to nearest vocabulary values"""
 
     def __init__(self):

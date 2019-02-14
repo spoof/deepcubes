@@ -1,16 +1,14 @@
 import json
 import os
 
+from ..cubes import Cube, Trainable, Vocabulary
+from ..utils.functions import softmax
+
 try:
     from torch import nn
     import torch
 except ImportError:
     raise ImportError("Missing dependencies for sentriment support")
-
-from ..cubes import TrainableCube
-from ..cubes import Vocabulary
-
-from ..utils.functions import softmax
 
 
 class SentimentNN(nn.Module):
@@ -36,7 +34,7 @@ class SentimentNN(nn.Module):
         return out
 
 
-class Sentiment(TrainableCube):
+class Sentiment(Cube, Trainable):
 
     def __init__(self, embed_size, hidden_size, vocab_size=None):
         self.vocab = Vocabulary()

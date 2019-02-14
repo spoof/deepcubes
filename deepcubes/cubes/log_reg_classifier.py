@@ -1,13 +1,11 @@
-from .cube import CubeLabel, PredictorCube, TrainableCube
-from ..utils.functions import logistic_regression_from_dict
-from ..utils.functions import logistic_regression_to_dict
-
+import numpy as np
 from sklearn.linear_model import LogisticRegression
 
-import numpy as np
+from ..utils.functions import logistic_regression_from_dict, logistic_regression_to_dict
+from .cube import Cube, CubeLabel, Predictor, Serializable, Trainable
 
 
-class LogRegClassifier(PredictorCube, TrainableCube):
+class LogRegClassifier(Cube, Predictor, Trainable, Serializable):
     """Classify"""
 
     def __init__(self, solver='liblinear', multi_class='ovr'):

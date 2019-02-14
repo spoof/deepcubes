@@ -1,12 +1,14 @@
-from .cube import PredictorCube, CubeLabel, Cube
-from ..utils.functions import sorted_labels
 from collections import defaultdict
+
+from ..utils.functions import sorted_labels
+from .cube import Cube, CubeLabel, Predictor
 
 
 class Pipe(Cube):
     """Linear cubes pipeline"""
 
-    def __init__(self, cubes): self.cubes = cubes
+    def __init__(self, cubes):
+        self.cubes = cubes
 
     def forward(self, input):
         result = input
@@ -16,7 +18,7 @@ class Pipe(Cube):
         return result
 
 
-class Max(PredictorCube):
+class Max(Cube, Predictor):
     """Select maximal proba for each label from multiple cubes results"""
 
     def __init__(self, predictor_cubes):

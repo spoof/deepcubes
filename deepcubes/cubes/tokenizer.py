@@ -1,10 +1,12 @@
-from .cube import TrainableCube
-from pymystem3 import Mystem
-import string
 import re
+import string
+
+from pymystem3 import Mystem
+
+from .cube import Cube, Trainable, Serializable
 
 
-class Tokenizer(TrainableCube):
+class Tokenizer(Cube, Trainable, Serializable):
     """Word tokenizer"""
 
     def __init__(self):

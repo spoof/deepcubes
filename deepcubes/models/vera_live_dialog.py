@@ -1,15 +1,11 @@
-from ..cubes import TrainableCube, PredictorCube
-from ..cubes import PatternMatcher
-from ..cubes import Max, CubeLabel
-from ..cubes import EditDistanceMatcher
-from ..models import LogisticIntentClassifier
-from ..utils.functions import sorted_labels
-
-
 from collections import defaultdict
 
+from ..cubes import Cube, CubeLabel, EditDistanceMatcher, Max, PatternMatcher, Predictor, Trainable
+from ..utils.functions import sorted_labels
+from .logistic_intent_classifier import LogisticIntentClassifier
 
-class Generic(TrainableCube, PredictorCube):
+
+class Generic(Cube, Trainable, Predictor):
     """General algorithms pretrained for specfical tasks"""
 
     MAX_EDIT_DIST = 1  # may be need to control from user?
@@ -58,7 +54,7 @@ class Generic(TrainableCube, PredictorCube):
         return model
 
 
-class VeraLiveDialog(TrainableCube, PredictorCube):
+class VeraLiveDialog(Cube, Trainable, Predictor):
     """Live dialog model"""
 
     NOT_UNDERSTAND_PROBA = 0.6  # TODO: recalc according models

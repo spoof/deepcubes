@@ -1,11 +1,11 @@
-from .cube import TrainableCube, PredictorCube, CubeLabel
-from ..utils.functions import sorted_labels
-
 import re
 from collections import defaultdict
 
+from ..utils.functions import sorted_labels
+from .cube import Cube, CubeLabel, Predictor, Serializable, Trainable
 
-class PatternMatcher(TrainableCube, PredictorCube):
+
+class PatternMatcher(Cube, Trainable, Predictor, Serializable):
     """Matcher based on regexps"""
 
     def __init__(self):

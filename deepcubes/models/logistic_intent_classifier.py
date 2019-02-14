@@ -1,9 +1,7 @@
-from ..cubes import TrainableCube, PredictorCube
-from ..cubes import LogRegClassifier
-from ..cubes import Tokenizer, Pipe
+from ..cubes import Cube, LogRegClassifier, Pipe, Predictor, Tokenizer, Trainable
 
 
-class LogisticIntentClassifier(TrainableCube, PredictorCube):
+class LogisticIntentClassifier(Cube, Trainable, Predictor):
 
     def __init__(self, embedder):
         self.tokenizer = Tokenizer()

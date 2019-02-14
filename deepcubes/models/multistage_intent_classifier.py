@@ -1,11 +1,12 @@
 from collections import defaultdict
+
 import pandas as pd
 
-from ..cubes import TrainableCube, PredictorCube, Tokenizer
+from ..cubes import Cube, Predictor, Tokenizer, Trainable
 from ..models import LogisticIntentClassifier
 
 
-class MultistagIntentClassifier(TrainableCube, PredictorCube):
+class MultistagIntentClassifier(Cube, Trainable, Predictor):
     """Live dialog model"""
 
     def __init__(self, major_clf, minor_clf, tokenizer):

@@ -1,11 +1,12 @@
-from .cube import TrainableCube, PredictorCube, CubeLabel
-from ..utils.functions import sorted_labels
-
-import editdistance as ed
 from collections import defaultdict
 
+import editdistance as ed
 
-class EditDistanceMatcher(PredictorCube, TrainableCube):
+from ..utils.functions import sorted_labels
+from .cube import Cube, CubeLabel, Predictor, Trainable, Serializable
+
+
+class EditDistanceMatcher(Cube, Predictor, Trainable, Serializable):
     """Matcher based on edit distance"""
 
     def __init__(self):
