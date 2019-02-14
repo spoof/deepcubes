@@ -1,6 +1,11 @@
+from typing import List
+
 from ..cubes import Cube
 
-from typing import List
+
+class EmbedderFactoryABC(object):
+    def create(self, mode):
+        raise NotImplementedError
 
 
 class Embedder(Cube):

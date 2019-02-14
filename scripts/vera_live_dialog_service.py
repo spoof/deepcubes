@@ -1,15 +1,17 @@
-from flask import Flask, request, jsonify
-import os
-import sys
-import json
-import time
-import logging
 import argparse
 import configparser
+import json
+import logging
+import os
+import sys
+import time
 
-from deepcubes.embedders import EmbedderFactory
+from flask import Flask, jsonify, request
+
 from deepcubes.models import VeraLiveDialog
-from deepcubes.utils.functions import get_new_model_id
+
+from .embedders import EmbedderFactory
+from .utils import get_new_model_id
 
 logger = logging.getLogger("LiveDialogService")
 logger.setLevel(logging.INFO)

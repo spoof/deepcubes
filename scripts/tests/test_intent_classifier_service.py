@@ -1,12 +1,11 @@
-import unittest
 import json
 import os
-
-from deepcubes.models import LogisticIntentClassifier
-from deepcubes.embedders import LocalEmbedder
-from deepcubes.utils.functions import get_new_model_id
+import unittest
 
 import scripts.intent_classifier_service as service
+from deepcubes.embedders import LocalEmbedder
+from deepcubes.models import LogisticIntentClassifier
+from scripts.utils import get_new_model_id
 
 
 class VeraLiveDialogServiceTest(unittest.TestCase):

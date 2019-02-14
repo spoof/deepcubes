@@ -29,5 +29,11 @@ setup(
                       "numpy", "flask", "editdistance", "tqdm"],
     extras_require={
         'sentiment': ['torch'],
+        'dev': [
+            'pytest',
+            'pytest-pep8',
+            'flake8',
+            'isort',
+        ]
     }
 )

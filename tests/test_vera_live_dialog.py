@@ -1,7 +1,7 @@
+import os
 import unittest
 
-from deepcubes.embedders import LocalEmbedder
-from deepcubes.embedders import EmbedderFactory
+from deepcubes.embedders import LocalEmbedder, EmbedderFactory as EmbedderFactoryABC
 from deepcubes.models import VeraLiveDialog
 
 
@@ -137,3 +137,14 @@ class TestVeraLiveDialog(unittest.TestCase):
             vera.generics['repeat'].labels,
             new_vera.generics['repeat'].labels
         )
+
+
+class EmbedderFactory(EmbedderFactoryABC):
+    def __init__(self, path):
+        self.path = path
+
+    def create(self, mode):
+        return LocalEmbedder(self._get_full_path(mode), mode)
+
+    def _get_full_path(self, mode):
+        return os.path.join(self.path, "{}.kv".format(mode))

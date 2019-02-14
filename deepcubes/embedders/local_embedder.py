@@ -1,8 +1,10 @@
-from gensim.models import KeyedVectors
-import numpy as np
+import json
 import os
 
-from ..embedders import Embedder
+import numpy as np
+from gensim.models import KeyedVectors
+
+from .embedder import Embedder
 
 
 class LocalEmbedder(Embedder):

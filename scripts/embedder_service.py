@@ -1,10 +1,11 @@
-from flask import Flask, request, jsonify
 import configparser
 import logging
-import sys
 import os
+import sys
 
-from deepcubes.embedders import LocalEmbedder
+from flask import Flask, jsonify, request
+
+from .embedders import LocalEmbedder
 
 logger = logging.getLogger("EmbedderService")
 logger.setLevel(logging.INFO)

@@ -1,13 +1,13 @@
-from deepcubes.embedders import EmbedderFactory
-from deepcubes.models import LogisticIntentClassifier
-from deepcubes.utils.functions import get_new_model_id
-
-import os
-import json
 import argparse
 import configparser
+import os
 
 import pandas as pd
+
+from deepcubes.models import LogisticIntentClassifier
+
+from .embedders import EmbedderFactory
+from .utils import get_new_model_id
 
 if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']

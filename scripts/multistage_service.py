@@ -1,15 +1,16 @@
-from flask import Flask, request, jsonify
-import os
-import sys
-import json
-import logging
 import argparse
 import configparser
+import logging
+import os
+import sys
 
-from deepcubes.models import LogisticIntentClassifier
-from deepcubes.models import MultistagIntentClassifier
-from deepcubes.embedders import EmbedderFactory
+import json
+from flask import Flask, jsonify, request
+
 from deepcubes.cubes import Tokenizer
+from deepcubes.models import LogisticIntentClassifier, MultistagIntentClassifier
+
+from .embedders import EmbedderFactory
 
 logger = logging.getLogger("MultistageClassifierService")
 logger.setLevel(logging.INFO)

@@ -1,14 +1,16 @@
-from flask import Flask, request, jsonify
-import os
-import sys
-import json
-import time
-import logging
 import argparse
 import configparser
+import json
+import logging
+import os
+import sys
+import time
+
+from flask import Flask, jsonify, request
 
 from deepcubes.models import LogisticIntentClassifier
-from deepcubes.embedders import EmbedderFactory
+
+from .embedders import EmbedderFactory
 
 logger = logging.getLogger("ClassifierService")
 logger.setLevel(logging.INFO)

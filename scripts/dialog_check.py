@@ -1,14 +1,14 @@
-from deepcubes.embedders import EmbedderFactory
-from deepcubes.models import VeraLiveDialog
-from deepcubes.utils.functions import get_new_model_id
-
-import os
-import json
 import argparse
 import configparser
+import os
 from pprint import pprint
 
 import pandas as pd
+
+from deepcubes.models import VeraLiveDialog
+
+from .embedders import EmbedderFactory
+from .utils import get_new_model_id
 
 if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']
@@ -17,7 +17,6 @@ else:
     config_file_path = (
         'tests/data/vera_live_dialog/vera_live_dialog.conf'
     )
-
 
 config_parser = configparser.RawConfigParser()
 config_parser.read(config_file_path)
@@ -55,10 +54,10 @@ def main(csv_path, lang):
             })
 
     for generic in ['yes', 'no', 'repeat']:
-            labels_settings.append({
-                'label': generic,
-                'generics': [generic],
-            })
+        labels_settings.append({
+            'label': generic,
+            'generics': [generic],
+        })
 
     config = {
         'labels_settings': labels_settings,
