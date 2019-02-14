@@ -1,11 +1,14 @@
+from abc import ABC, abstractmethod
 from typing import List
 
 from ..cubes import Cube
 
 
-class EmbedderFactoryABC(object):
+class EmbedderFactory(ABC):
+
+    @abstractmethod
     def create(self, mode):
-        raise NotImplementedError
+        ...
 
 
 class Embedder(Cube):

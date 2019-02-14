@@ -4,7 +4,11 @@ from enum import Enum
 
 import requests
 
-from deepcubes.embedders import Embedder, EmbedderFactoryABC, LocalEmbedder
+from deepcubes.embedders import (
+    Embedder,
+    EmbedderFactory as EmbedderFactoryABC,
+    LocalEmbedder,
+)
 
 
 class FactoryType(Enum):

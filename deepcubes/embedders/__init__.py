@@ -1,5 +1,5 @@
-from .embedder import Embedder, EmbedderFactoryABC
+from .embedder import Embedder, EmbedderFactory
 from .local_embedder import LocalEmbedder
 
 __all__ = ["LocalEmbedder", "NetworkEmbedder", "Embedder",
-           "EmbedderFactoryABC"]
+           "EmbedderFactory"]
