@@ -50,14 +50,17 @@ app = Flask(__name__)
 def load_model(model_id):
     logger.info("Loading intent model {} ...".format(model_id))
     model_path = os.path.join(
-        MODEL_STORAGE, "{}/intent_classifier.cube".format(model_id)
+        MODEL_STORAGE, "{}.cube".format(model_id)
     )
 
     if not os.path.isfile(model_path):
         logger.error("Model {} not found".format(model_id))
         return None
 
-    model = LogisticIntentClassifier.load(model_path, embedder_factory)
+    with open(model_path, 'r') as data:
+        model_params = json.loads(data.read())
+
+    model = LogisticIntentClassifier.load(model_params, embedder_factory)
 
     return model
 
@@ -131,7 +134,9 @@ def predict():
         with open('scripts/logs/classifier_service.json', 'a') as out:
             data = {
                 'timestamp': time.time(),
-                'model_path': model.cube_path,
+                'model_path': os.path.join(
+                    MODEL_STORAGE, '{}.cube'.format(model_id)
+                ),
                 'query': query,
                 'answer': output,
             }

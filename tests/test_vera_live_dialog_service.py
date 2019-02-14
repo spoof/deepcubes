@@ -1,5 +1,4 @@
 import unittest
-import shutil
 import json
 import os
 
@@ -12,7 +11,7 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
         service.app.testing = True
         self.service = service.app.test_client()
 
-        self.models_storage = 'scripts/models/live_dialog'
+        self.models_storage = 'tests/models/live_dialog'
         os.makedirs(self.models_storage, exist_ok=True)
 
         self.test_config_path = 'tests/data/vera_live_dialog/test.config'
@@ -131,4 +130,6 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
 
     def tearDown(self):
         for model_id in self.test_models_list:
-            shutil.rmtree(os.path.join(self.models_storage, str(model_id)))
+            os.remove(
+                os.path.join(self.models_storage, '{}.cube'.format(model_id))
+            )

@@ -3,6 +3,7 @@ from deepcubes.models import VeraLiveDialog
 from deepcubes.utils.functions import get_new_model_id
 
 import os
+import json
 import argparse
 import configparser
 from pprint import pprint
@@ -13,7 +14,10 @@ if 'SERVICE_CONF' in os.environ:
     config_file_path = os.environ['SERVICE_CONF']
 else:
     print('Config file not found. Text config is used...')
-    config_file_path = 'tests/data/test.conf'
+    config_file_path = (
+        'tests/data/vera_live_dialog/vera_live_dialog.conf'
+    )
+
 
 config_parser = configparser.RawConfigParser()
 config_parser.read(config_file_path)
@@ -71,8 +75,12 @@ def main(csv_path, lang):
 
     new_model_id = get_new_model_id(MODEL_STORAGE)
 
-    model_path = os.path.join(MODEL_STORAGE, str(new_model_id))
-    live_dialog_model.save(model_path)
+    clf_params = live_dialog_model.save()
+    clf_path = os.path.join(MODEL_STORAGE, '{}.cube'.format(new_model_id))
+
+    os.makedirs(MODEL_STORAGE, exist_ok=True)
+    with open(clf_path, 'w') as out:
+        out.write(json.dumps(clf_params))
 
     if new_model_id is not None:
         print('Created live dialog model with id {}'.format(new_model_id))

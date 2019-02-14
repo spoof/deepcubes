@@ -1,5 +1,4 @@
 import unittest
-import os
 import json
 
 from deepcubes.cubes import Tokenizer, LogRegClassifier
@@ -42,8 +41,6 @@ class TestLogRegClassifier(unittest.TestCase):
             self.Y.append(self.answer_to_label[answer])
             self.X.append(vector)
 
-        self.checkpoint_path = 'tests/data/'
-
     def test_extreme_cases(self):
         clf = LogRegClassifier()
 
@@ -55,17 +52,12 @@ class TestLogRegClassifier(unittest.TestCase):
         self.assertEqual(clf([0, 1, 2]), [(1, 1.0)])
 
     def test_saving_and_loading(self):
-        name = 'logistic_regression.cube'
         self.classifier.train(self.X, self.Y)
 
         clf = self.classifier.clf
 
-        self.classifier.save(name=name, path=self.checkpoint_path)
-        new_classifier = LogRegClassifier.load(
-            path=os.path.join(self.checkpoint_path, name)
-        )
+        clf_params = self.classifier.save()
+        new_classifier = LogRegClassifier.load(clf_params)
 
         self.assertEqual(clf.coef_.tolist(),
                          new_classifier.clf.coef_.tolist())
-
-        os.remove(os.path.join(self.checkpoint_path, name))

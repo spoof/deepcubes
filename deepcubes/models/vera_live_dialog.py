@@ -1,6 +1,3 @@
-import json
-import os
-
 from ..cubes import TrainableCube, PredictorCube
 from ..cubes import PatternMatcher
 from ..cubes import Max, CubeLabel
@@ -41,31 +38,22 @@ class Generic(TrainableCube, PredictorCube):
     def forward(self, text):
         return self.ed_matcher(text)
 
-    def save(self, path, name='generics.cube'):
-        super().save(path, name)
-
-        cube_params = {
-            'cube': self.__class__.__name__,
+    def save(self):
+        model_params = {
+            'class': self.__class__.__name__,
             'labels': self.labels,
             'mode': self.mode,
             'texts': self.texts,
-            'ed_matcher': self.ed_matcher.save(path),
+            'ed_matcher': self.ed_matcher.save(),
         }
 
-        cube_path = os.path.join(path, name)
-        with open(cube_path, 'w') as out:
-            out.write(json.dumps(cube_params))
-
-        return cube_path
+        return model_params
 
     @classmethod
-    def load(cls, path):
-        with open(path, 'r') as f:
-            cube_params = json.loads(f.read())
-
-        model = cls(cube_params['mode'], cube_params['texts'])
-        model.labels = cube_params['labels']
-        model.ed_matcher = EditDistanceMatcher.load(cube_params["ed_matcher"])
+    def load(cls, model_params):
+        model = cls(model_params['mode'], model_params['texts'])
+        model.labels = model_params['labels']
+        model.ed_matcher = EditDistanceMatcher.load(model_params["ed_matcher"])
 
         return model
 
@@ -152,54 +140,39 @@ class VeraLiveDialog(TrainableCube, PredictorCube):
 
         return sorted_labels(answer + [not_understand_label])
 
-    def save(self, path, name='vera_live_dialog.cube'):
-        super().save(path, name)
-
+    def save(self):
         generics_params = {
-            name: generic.save(
-                path=os.path.join(path, 'generics/{}'.format(name)),
-                name='{}_generic.coub'.format(name)
-            ) for name, generic in self.generics.items()
+            name: generic.save() for name, generic in self.generics.items()
         }
 
-        cube_params = {
-            'cube': self.__class__.__name__,
+        model_params = {
+            'class': self.__class__.__name__,
             'config': self.config,
-            'pattern_matcher': self.pattern_matcher.save(path=path),
+            'pattern_matcher': self.pattern_matcher.save(),
             'generics': generics_params,
             'generic_data_path': self.generic_data_path,
-            'intent_classifier': self.intent_classifier.save(
-                path=os.path.join(path, 'intent_classifier')
-            ),
+            'intent_classifier': self.intent_classifier.save(),
         }
 
-        self.cube_path = os.path.join(path, name)
-        with open(self.cube_path, 'w') as out:
-            out.write(json.dumps(cube_params))
-
-        return self.cube_path
+        return model_params
 
     @classmethod
-    def load(cls, path, embedder_factory):
-        with open(path, 'r') as f:
-            cube_params = json.loads(f.read())
+    def load(cls, model_params, embedder_factory):
+        model = cls(None, model_params["generic_data_path"])
 
-        model = cls(None, cube_params["generic_data_path"])
-
-        model.config = cube_params['config']
+        model.config = model_params['config']
         model.pattern_matcher = PatternMatcher.load(
-            cube_params['pattern_matcher']
+            model_params['pattern_matcher']
         )
 
         model.generics = {
             name: Generic.load(
-                path
-            ) for name, path in cube_params['generics'].items()
+                generic_params
+            ) for name, generic_params in model_params['generics'].items()
         }
 
         model.intent_classifier = LogisticIntentClassifier.load(
-            cube_params['intent_classifier'], embedder_factory
+            model_params['intent_classifier'], embedder_factory
         )
 
-        model.cube_path = path
         return model

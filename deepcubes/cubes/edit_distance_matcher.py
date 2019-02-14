@@ -2,8 +2,6 @@ from .cube import TrainableCube, PredictorCube, CubeLabel
 from ..utils.functions import sorted_labels
 
 import editdistance as ed
-import os
-import json
 from collections import defaultdict
 
 

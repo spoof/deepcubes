@@ -1,6 +1,5 @@
 from collections import namedtuple
 from typing import List
-import os
 
 
 class Cube(object):

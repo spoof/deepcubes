@@ -1,8 +1,6 @@
 from ..cubes import Cube
 
 from typing import List
-import os
-import json
 
 
 class Embedder(Cube):
@@ -12,7 +10,7 @@ class Embedder(Cube):
 
     def save(self):
         cube_params = {
-            'cube': self.__class__.__name__,
+            'class': self.__class__.__name__,
             'mode': self.mode
         }
 

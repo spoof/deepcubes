@@ -1,6 +1,4 @@
 import unittest
-import os
-import shutil
 
 from deepcubes.embedders import LocalEmbedder
 from deepcubes.embedders import EmbedderFactory
@@ -110,12 +108,8 @@ class TestVeraLiveDialog(unittest.TestCase):
         vera = VeraLiveDialog(self.embedder, self.generic_data_path)
         vera.train(self.config)
 
-        name = 'live_dialog.cube'
-        model_id = 1
-        model_path = os.path.join(self.data_dir, str(model_id))
-
-        new_path = vera.save(name=name, path=model_path)
-        new_vera = VeraLiveDialog.load(new_path, self.embedder_factory)
+        model_params = vera.save()
+        new_vera = VeraLiveDialog.load(model_params, self.embedder_factory)
 
         self.assertEqual(vera.config, new_vera.config)
 
@@ -143,5 +137,3 @@ class TestVeraLiveDialog(unittest.TestCase):
             vera.generics['repeat'].labels,
             new_vera.generics['repeat'].labels
         )
-
-        shutil.rmtree(os.path.join(self.data_dir, str(model_id)))

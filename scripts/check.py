@@ -3,6 +3,7 @@ from deepcubes.models import LogisticIntentClassifier
 from deepcubes.utils.functions import get_new_model_id
 
 import os
+import json
 import argparse
 import configparser
 
@@ -51,7 +52,12 @@ def main(csv_path, lang):
 
     new_model_id = get_new_model_id(MODEL_STORAGE)
 
-    classifier.save(os.path.join(MODEL_STORAGE, str(new_model_id)))
+    clf_params = classifier.save()
+    clf_path = os.path.join(MODEL_STORAGE, '{}.cube'.format(new_model_id))
+
+    os.makedirs(MODEL_STORAGE, exist_ok=True)
+    with open(clf_path, 'w') as out:
+        out.write(json.dumps(clf_params))
 
     if new_model_id is not None:
         print('Created intent classifier model id: {}'.format(new_model_id))

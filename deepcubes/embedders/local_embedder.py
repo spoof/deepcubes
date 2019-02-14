@@ -1,6 +1,5 @@
 from gensim.models import KeyedVectors
 import numpy as np
-import json
 import os
 
 from ..embedders import Embedder

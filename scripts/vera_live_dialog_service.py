@@ -55,14 +55,17 @@ app = Flask(__name__)
 def load_model(model_id):
     logger.info("Loading intent model {} ...".format(model_id))
     model_path = os.path.join(
-        MODEL_STORAGE, "{}/vera_live_dialog.cube".format(model_id)
+        MODEL_STORAGE, "{}.cube".format(model_id)
     )
 
     if not os.path.isfile(model_path):
         logger.error("Model {} not found".format(model_id))
         return None
 
-    model = VeraLiveDialog.load(model_path, embedder_factory)
+    with open(model_path, 'r') as data:
+        model_params = json.loads(data.read())
+
+    model = VeraLiveDialog.load(model_params, embedder_factory)
     return model
 
 
@@ -141,7 +144,9 @@ def predict():
         with open('scripts/logs/live_dialog_service.json', 'a') as out:
             data = {
                 'timestamp': time.time(),
-                'model_path': model.cube_path,
+                'model_path': os.path.join(
+                    MODEL_STORAGE, '{}.cube'.format(model_id)
+                ),
                 'query': query,
                 'labels': labels,
                 'answer': output,
@@ -206,10 +211,15 @@ def train():
         live_dialog_model.train(config)
 
         new_model_id = get_new_model_id(MODEL_STORAGE)
-        models[new_model_id] = live_dialog_model
 
-        model_path = os.path.join(MODEL_STORAGE, str(new_model_id))
-        live_dialog_model.save(model_path)
+        clf_params = live_dialog_model.save()
+        clf_path = os.path.join(MODEL_STORAGE, '{}.cube'.format(new_model_id))
+
+        os.makedirs(MODEL_STORAGE, exist_ok=True)
+        with open(clf_path, 'w') as out:
+            out.write(json.dumps(clf_params))
+
+        models[new_model_id] = live_dialog_model
 
         logging.info('Saved model with model_id {}'.format(new_model_id))
 

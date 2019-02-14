@@ -3,8 +3,6 @@ from .cube import TrainableCube
 from collections import defaultdict
 import tqdm
 import numpy as np
-import os
-import json
 
 
 class Vocabulary(TrainableCube):

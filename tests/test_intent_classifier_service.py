@@ -1,5 +1,4 @@
 import unittest
-import shutil
 import json
 import os
 
@@ -36,9 +35,14 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
 
         self.classifier.train(self.answers, self.questions, 'lem')
         self.model_id = get_new_model_id(self.model_storage)
-        self.classifier.save(
-            os.path.join(self.model_storage, str(self.model_id))
+        self.clf_params = self.classifier.save()
+
+        self.clf_path = os.path.join(
+            self.model_storage, '{}.cube'.format(self.model_id)
         )
+
+        with open(self.clf_path, 'w') as out:
+            out.write(json.dumps(self.clf_params))
 
         self.output_keys = ["answer", "probability",
                             "threshold", "accuracy_score"]
@@ -87,4 +91,4 @@ class VeraLiveDialogServiceTest(unittest.TestCase):
         return predict_resp_data
 
     def tearDown(self):
-        shutil.rmtree(os.path.join(self.model_storage, str(self.model_id)))
+        os.remove(self.clf_path)

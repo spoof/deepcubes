@@ -1,7 +1,5 @@
 from collections import defaultdict
 import pandas as pd
-import json
-import os
 
 from ..cubes import TrainableCube, PredictorCube, Tokenizer
 from ..models import LogisticIntentClassifier
@@ -70,10 +68,8 @@ class MultistagIntentClassifier(TrainableCube, PredictorCube):
         model_params = {
             'class': self.__class__.__name__,
             'groups_data_path': self.groups_data_path,
-            'major_clf': self.major_clf.save()
-            ),
-            'minor_clf': self.minor_clf.save()
-            ),
+            'major_clf': self.major_clf.save(),
+            'minor_clf': self.minor_clf.save(),
             'tokenizer': self.tokenizer.save(),
         }
 

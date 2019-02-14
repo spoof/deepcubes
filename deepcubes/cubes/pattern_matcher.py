@@ -2,8 +2,6 @@ from .cube import TrainableCube, PredictorCube, CubeLabel
 from ..utils.functions import sorted_labels
 
 import re
-import os
-import json
 from collections import defaultdict
 
 
@@ -43,7 +41,7 @@ class PatternMatcher(TrainableCube, PredictorCube):
 
     def save(self):
         cube_params = {
-            'cube': self.__class__.__name__,
+            'class': self.__class__.__name__,
             'labels': self.labels,
             'patterns': self.patterns,
         }

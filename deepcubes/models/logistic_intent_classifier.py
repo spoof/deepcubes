@@ -1,6 +1,3 @@
-import json
-import os
-
 from ..cubes import TrainableCube, PredictorCube
 from ..cubes import LogRegClassifier
 from ..cubes import Tokenizer, Pipe
@@ -31,7 +28,7 @@ class LogisticIntentClassifier(TrainableCube, PredictorCube):
             'embedder': self.embedder.save()
         }
 
-        return self.model_params
+        return model_params
 
     @classmethod
     def load(cls, model_params, embedder_factory):

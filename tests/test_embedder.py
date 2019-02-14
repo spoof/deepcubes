@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-import os
 
 from deepcubes.cubes import Tokenizer
 from deepcubes.embedders import LocalEmbedder
@@ -38,15 +37,13 @@ class TestEmbedder(unittest.TestCase):
         self.assertEqual(self.tokenizer(self.text_phrase), lem_result)
 
     def test_tokenizer_loading(self):
-        name, mode = 'token.cube', 'tokens'
+        mode = 'tokens'
 
         self.tokenizer.train(mode=mode)
-        self.tokenizer.save(name=name, path=self.data_dir)
+        tok_params = self.tokenizer.save()
 
-        new_tokenizer = Tokenizer.load(path=os.path.join(self.data_dir, name))
+        new_tokenizer = Tokenizer.load(tok_params)
         self.assertEqual(self.tokenizer.mode, new_tokenizer.mode)
-
-        os.remove(os.path.join(self.data_dir, name))
 
     def test_get_zero_vector(self):
         np.testing.assert_almost_equal(self.embedder([]),

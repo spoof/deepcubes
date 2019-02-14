@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import os
 import sys
+import json
 import logging
 import argparse
 import configparser
@@ -63,26 +64,32 @@ def load_model(major_model_id, minor_model_id, groups_data_path):
     logger.info("Loading major model {} ...".format(major_model_id))
 
     major_model_path = os.path.join(
-        MODEL_STORAGE, "{}/intent_classifier.cube".format(major_model_id)
+        MODEL_STORAGE, "{}.cube".format(major_model_id)
     )
 
     if not os.path.isfile(major_model_path):
         logger.error("Model {} not found".format(major_model_id))
         return None
 
+    with open(major_model_path, 'r') as data:
+        major_model_params = json.loads(data.read())
+
+    major_model = LogisticIntentClassifier.load(major_model_params,
+                                                embedder_factory)
     logger.info("Loading minor model {} ...".format(minor_model_id))
 
     minor_model_path = os.path.join(
-        MODEL_STORAGE, "{}/intent_classifier.cube".format(minor_model_id)
+        MODEL_STORAGE, "{}.cube".format(minor_model_id)
     )
 
     if not os.path.isfile(minor_model_path):
         logger.error("Model {} not found".format(minor_model_id))
         return None
 
-    major_model = LogisticIntentClassifier.load(major_model_path,
-                                                embedder_factory)
-    minor_model = LogisticIntentClassifier.load(minor_model_path,
+    with open(minor_model_path, 'r') as data:
+        minor_model_params = json.loads(data.read())
+
+    minor_model = LogisticIntentClassifier.load(minor_model_params,
                                                 embedder_factory)
 
     tokenizer = Tokenizer()

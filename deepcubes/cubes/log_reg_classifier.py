@@ -5,8 +5,6 @@ from ..utils.functions import logistic_regression_to_dict
 from sklearn.linear_model import LogisticRegression
 
 import numpy as np
-import json
-import os
 
 
 class LogRegClassifier(PredictorCube, TrainableCube):
@@ -14,7 +12,6 @@ class LogRegClassifier(PredictorCube, TrainableCube):
 
     def __init__(self, solver='liblinear', multi_class='ovr'):
         self.clf = LogisticRegression(solver=solver, multi_class=multi_class)
-                                      multi_class=multi_class)
         self.single_label = None
         self.single_label = None
 

@@ -1,8 +1,6 @@
 from .cube import TrainableCube
 
 import editdistance as ed
-import json
-import os
 
 
 class Corrector(TrainableCube):
